@@ -25,4 +25,7 @@ public class PlayerInfo : ScriptableObject
 
     [Header("Armor")]
     public Armor armor;
+
+    [Header("Weapon")]
+    public Weapon weapon;
 }

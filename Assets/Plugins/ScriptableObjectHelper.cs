@@ -4,7 +4,7 @@
 using UnityEditor;
 #endif
 
-public static class Extensions
+public static class ScriptableObjectHelper
 {
     /// <summary>
     //	This makes it easy to create, name and place unique new ScriptableObject asset files.
