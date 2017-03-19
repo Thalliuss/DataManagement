@@ -70,7 +70,7 @@ namespace Kevin.Database
                 _playerInfo[current].armor = _armor;
                 _playerInfo[current].weapon = weapons[weapon];
 
-                SaveItemInfo(name, JsonUtility.ToJson(info));
+                SavePlayerInfo(name, JsonUtility.ToJson(info));
                 Init();
             }
         }
