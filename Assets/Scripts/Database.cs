@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Kevin.Database
@@ -70,7 +67,8 @@ namespace Kevin.Database
                 _playerInfo[current].armor = _armor;
                 _playerInfo[current].weapon = weapons[weapon];
 
-                SavePlayerInfo(name, JsonUtility.ToJson(info));
+                DatabaseHelper.SaveJSON(name, JsonUtility.ToJson(_playerInfo[current]));
+                DatabaseHelper.SaveJSON("database", JsonUtility.ToJson(this));
                 Init();
             }
         }
@@ -94,30 +92,8 @@ namespace Kevin.Database
 
                 _playerInfo[current].name = name;
 
-                SavePlayerInfo(name, JsonUtility.ToJson(info));
                 Init();
             }
-        }
-
-        public void SavePlayerInfo(string name, string info)
-        {
-            string path = null;
-
-            if (!Application.isEditor)
-                path = Application.dataPath + "/Resources/" + name + ".json";
-            else
-                path = "Assets/Resources/GameJSONData/" + name + ".json";
-
-            using (FileStream fs = new FileStream(path, FileMode.Create))
-            {
-                using (StreamWriter writer = new StreamWriter(fs))
-                {
-                    writer.Write(info);
-                }
-            }
-            #if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-            #endif
         }
     }
 }

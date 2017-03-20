@@ -9,24 +9,15 @@ public class Player : MonoBehaviour
     public string name = "kevin";
     public PlayerInfo playerInfo;
 
-    [SerializeField] public Database _database;
+    private Database _database;
 
     public Toggle toggle;
-
-    private string path;
-
-    private void Awake()
-    {
-        _database.Init();
-
-        if (!Application.isEditor)
-            path = Application.dataPath + "/Resources/" + name + ".json";
-        else
-            path = "Assets/Resources/GameJSONData/" + name + ".json";
-    }
+    public Image image;
 
     private void Start()
     {
+        _database = Main.Instance.database;
+
         if (Application.isEditor)
         {
             PlayerInfo result;
@@ -34,26 +25,28 @@ public class Player : MonoBehaviour
             {
                 if (result == null) return;
 
-                var json = File.ReadAllText(path);
-                JsonUtility.FromJsonOverwrite(json.ToString(), _database.playerInfo[name]);
+                JsonUtility.FromJsonOverwrite(File.ReadAllText("Assets/Resources/GameJSONData/" + name + ".json"), _database.playerInfo[name]);
+                DatabaseHelper.SaveJSON("database", JsonUtility.ToJson(_database));
 
                 playerInfo = _database.playerInfo[name];
 
                 toggle.isOn = true;
+                image.sprite = playerInfo.race.sprite;
             }
         }
         else
         {
-            if (!File.Exists(path)) return;
+            if (!File.Exists(Application.dataPath + "/Resources/" + name + ".json")) return;
 
             _database.AddPlayerInfo(name);
 
-            var json = File.ReadAllText(path);
-            JsonUtility.FromJsonOverwrite(json.ToString(), _database.playerInfo[name]);
+            JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + name + ".json"), _database.playerInfo[name]);
+            DatabaseHelper.SaveJSON("database", JsonUtility.ToJson(_database));
 
             playerInfo = _database.playerInfo[name];
 
             toggle.isOn = true;
+            image.sprite = playerInfo.race.sprite;
         }
     }
 
@@ -62,13 +55,11 @@ public class Player : MonoBehaviour
         PlayerInfo result;
         if (_database.playerInfo.TryGetValue(name, out result)) {
             if (result == null && Application.isEditor) return;
-
-            var json = File.ReadAllText(path);
-            JsonUtility.FromJsonOverwrite(json.ToString(), _database.playerInfo[name]);
             
             playerInfo = _database.playerInfo[name];
 
             toggle.isOn = true;
+            image.sprite = playerInfo.race.sprite;
         }
     }
 

@@ -6,5 +6,5 @@ using UnityEngine;
 public class Race : ScriptableObject
 {
     public string name;
-
+    public Sprite sprite;
 }

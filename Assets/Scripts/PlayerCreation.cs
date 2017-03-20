@@ -13,13 +13,10 @@ public class PlayerCreation : MonoBehaviour
     [SerializeField] private Text _profession;
     [SerializeField] private Text _weapon;
 
-    [SerializeField, Header("Database.")]
-    private Database _database;
-
     public void CreatePlayerInfo()
     {
-        _database.Init();
-        _database.AddPlayerInfo(_name, _race.text, _profession.text, _weapon.text);
+        var database = Main.Instance.database;
+        database.AddPlayerInfo(_name, _race.text, _profession.text, _weapon.text);
     }
 
     private void Update()
