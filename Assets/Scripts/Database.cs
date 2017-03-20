@@ -1,100 +1,102 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
-namespace Kevin.Database
+
+[CreateAssetMenu]
+public class Database : ScriptableObject
 {
-    [CreateAssetMenu]
-    public class Database : ScriptableObject
+    [Header("Player's")]
+    public List<PlayerInfo> playerInfo = new List<PlayerInfo>();
+
+    [SerializeField, Header("Race's")]
+    private List<Race> _races = new List<Race>();
+
+    [SerializeField, Header("Profession's")]
+    private List<Profession> _professions = new List<Profession>();
+
+    [SerializeField, Header("Armor set")]
+    private Armor _armor;
+
+    [SerializeField, Header("Weapon's.")]
+    private List<Weapon> _weapons = new List<Weapon>();
+
+    public void AddPlayerInfo(string name, int race, int profession, int weapon)
     {
-        [SerializeField, Header("Player's")]
-        private List<PlayerInfo> _playerInfo = new List<PlayerInfo>();
-        public Dictionary<string, PlayerInfo> playerInfo = new Dictionary<string, PlayerInfo>();
-
-        [SerializeField, Header("Race's")]
-        private List<Race> _races = new List<Race>();
-        public Dictionary<string, Race> races = new Dictionary<string, Race>();
-
-        [SerializeField, Header("Profession's")]
-        private List<Profession> _professions = new List<Profession>();
-        public Dictionary<string, Profession> professions = new Dictionary<string, Profession>();
-
-        [SerializeField, Header("Armor set")]
-        private Armor _armor;
-
-        [SerializeField, Header("Weapon's.")]
-        private List<Weapon> _weapons = new List<Weapon>();
-        public Dictionary<string, Weapon> weapons = new Dictionary<string, Weapon>();
-
-        public void Init()
+        if (name != null)
         {
-            playerInfo.Clear();
-            for (var i = 0; i < _playerInfo.Count; i++)
-                playerInfo.Add(_playerInfo[i].name, _playerInfo[i]);
+            var length = playerInfo.Count;
+            for (var i = 0; i < length; i++)
+                if (name == playerInfo[i].name) {
+                    Debug.Log("Sorry, this name is already taken.");
+                    return;
+                } 
 
-            races.Clear();
-            for (var i = 0; i < _races.Count; i++)
-                races.Add(_races[i].name, _races[i]);
+            var info = (PlayerInfo)ScriptableObjectHelper.CreateAsset<PlayerInfo>(name, "Assets/Scripts/Players");
 
-            professions.Clear();
-            for (var i = 0; i < _professions.Count; i++)
-                professions.Add(_professions[i].name, _professions[i]);
+            playerInfo.Add(info);
 
-            weapons.Clear();
-            for (var i = 0; i < _weapons.Count; i++)
-                weapons.Add(_weapons[i].name, _weapons[i]);
+            var current = playerInfo.Count - 1;
+
+            playerInfo[current].name = name;
+            playerInfo[current].race = _races[race];
+            playerInfo[current].profession = _professions[profession];
+            playerInfo[current].armor = _armor;
+            playerInfo[current].weapon = _weapons[weapon];
+
+            SaveJSON(name, JsonUtility.ToJson(playerInfo[current]));
+            SaveJSON("database", JsonUtility.ToJson(this));
         }
-
-        public void AddPlayerInfo(string name, string race, string profession, string weapon)
+    }
+    public void AddPlayerInfo(string name)
+    {
+        if (name != null)
         {
-            if (name != null)
+            var length = playerInfo.Count;
+            for (var i = 0; i < length; i++)
+                if (name == playerInfo[i].name)
+                {
+                    Debug.Log("Sorry, this name is already taken.");
+                    return;
+                }
+
+            var info = (PlayerInfo)ScriptableObjectHelper.CreateAsset<PlayerInfo>(name, "Assets/Scripts/Players");
+
+            playerInfo.Add(info);
+
+            var current = playerInfo.Count - 1;
+
+            playerInfo[current].name = name;
+        }
+    }
+
+    public PlayerInfo FindPlayerInfo(string name)
+    {
+        for (var i = 0; i < playerInfo.Count; i++)
+            if (playerInfo[i].name == name) return playerInfo[i];
+
+        return null;
+    }
+
+    public void SaveJSON(string name, string info)
+    {
+        string path = null;
+
+        if (!Application.isEditor)
+            path = Application.dataPath + "/Resources/" + name + ".json";
+        else
+            path = "Assets/Resources/GameJSONData/" + name + ".json";
+
+        using (FileStream fs = new FileStream(path, FileMode.Create))
+        {
+            using (StreamWriter writer = new StreamWriter(fs))
             {
-                var length = _playerInfo.Count;
-                for (var i = 0; i < length; i++)
-                    if (name == _playerInfo[i].name) {
-                        Debug.Log("Sorry, this name is already taken.");
-                        return;
-                    } 
-
-                var info = (PlayerInfo)ScriptableObjectHelper.CreateAsset<PlayerInfo>(name, "Assets/Scripts/Players");
-
-                _playerInfo.Add(info);
-
-                var current = _playerInfo.Count - 1;
-
-                _playerInfo[current].name = name;
-                _playerInfo[current].race = races[race];
-                _playerInfo[current].profession = professions[profession];
-                _playerInfo[current].armor = _armor;
-                _playerInfo[current].weapon = weapons[weapon];
-
-                DatabaseHelper.SaveJSON(name, JsonUtility.ToJson(_playerInfo[current]));
-                DatabaseHelper.SaveJSON("database", JsonUtility.ToJson(this));
-                Init();
+                writer.Write(info);
             }
         }
-        public void AddPlayerInfo(string name)
-        {
-            if (name != null)
-            {
-                var length = _playerInfo.Count;
-                for (var i = 0; i < length; i++)
-                    if (name == _playerInfo[i].name)
-                    {
-                        Debug.Log("Sorry, this name is already taken.");
-                        return;
-                    }
-
-                var info = (PlayerInfo)ScriptableObjectHelper.CreateAsset<PlayerInfo>(name, "Assets/Scripts/Players");
-
-                _playerInfo.Add(info);
-
-                var current = _playerInfo.Count - 1;
-
-                _playerInfo[current].name = name;
-
-                Init();
-            }
-        }
+        #if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+        #endif
     }
 }
 

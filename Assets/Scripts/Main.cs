@@ -1,7 +1,4 @@
-﻿using Kevin.Database;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 public class Main : MonoBehaviour
@@ -27,6 +24,7 @@ public class Main : MonoBehaviour
         if (_instance == null)
             _instance = this;
 
-        database.Init();
+        if (File.Exists(Application.dataPath + "/Resources/database.json"))
+            JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/database.json"), database);
     }
 }
