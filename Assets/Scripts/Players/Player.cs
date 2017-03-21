@@ -4,47 +4,32 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [Header("Player Name.")]
-    public string name = "kevin";
+    [Header("Player.")]
+    public string name;
     public PlayerInfo playerInfo;
 
     private Database _database;
 
     public Image image;
 
-    private void Start()
+    public void LoadAssets(int id)
     {
         _database = Main.Instance.database;
+
+        if (File.Exists(Application.dataPath + "/Resources/" + name + ".json"))
+        {
+            JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + name + ".json"), _database.playerInfo[id]);
+            playerInfo = _database.playerInfo[id];
+            image.sprite = playerInfo.race.sprite;
+
+            return;
+        }
+        playerInfo = _database.playerInfo[id];
+        image.sprite = playerInfo.race.sprite;
     }
 
     private void Update()
     {
         if (playerInfo != null) playerInfo.armor.CalculatePoints();
-
-        if (Application.isEditor)
-        {
-            if (_database.FindPlayerInfo(name) != null)
-            {
-                JsonUtility.FromJsonOverwrite(File.ReadAllText("Assets/Resources/GameJSONData/" + name + ".json"), _database.FindPlayerInfo(name));
-                _database.SaveJSON("database", JsonUtility.ToJson(_database));
-
-                playerInfo = _database.FindPlayerInfo(name);
-
-                image.sprite = playerInfo.race.sprite;
-            }
-        }
-        else
-        {
-            if (!File.Exists(Application.dataPath + "/Resources/" + name + ".json")) return;
-
-            _database.AddPlayerInfo(name);
-
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + name + ".json"), _database.FindPlayerInfo(name));
-            _database.SaveJSON("database", JsonUtility.ToJson(_database));
-
-            playerInfo = _database.FindPlayerInfo(name);
-
-            image.sprite = playerInfo.race.sprite;
-        }
     }
 }

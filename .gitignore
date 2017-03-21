@@ -1,8 +1,5 @@
 Library/
 Temp/
-test_Data/
 
 *.csproj
 *.sln
-*.suo
-*.exe
