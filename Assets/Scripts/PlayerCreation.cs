@@ -1,78 +1,66 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerCreation : MonoBehaviour
 {
-    [SerializeField, Header("PlayerName.")]
+    [SerializeField, Header("Player name.")]
     private string _name;
     [SerializeField] private InputField _input;
-
 
     [SerializeField, Header("Race's, Classes and Weapons")]
     private Dropdown _race;
     [SerializeField] private Dropdown _profession;
     [SerializeField] private Dropdown _weapon;
 
-    [SerializeField] private Transform _players;
+    [SerializeField, Header("Player presets.")]
+    private Transform _players;
     [SerializeField] private GameObject _prefab;
+
+    [SerializeField, Header("Creation button.")]
+    private Button _create;
 
     private int _id;
     private List<Player> _instPlayers = new List<Player>();
 
+    private Database _database;
 
     public void Start()
     {
-        var database = Main.Instance.database;
-        for (var i = 0; i < database.playerInfo.Count; i++) {
-            if (File.Exists(Application.dataPath + "/Resources/" + database.playerNames[i] + ".json")) {
-                database.playerInfo[i] = new PlayerInfo();
-                JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + database.playerNames[i] + ".json"), database.playerInfo[i]);
-            }
+        _database = GameManager.Instance.database;
+        for (var i = 0; i < _database.playerInfo.Count; i++) {
             _instPlayers.Add(Instantiate(_prefab, _players, false).GetComponent<Player>());
-            _instPlayers[i].name = database.playerInfo[i].name;
-
-            _instPlayers[i].LoadAssets(i);
+            _instPlayers[i].name = _database.playerInfo[i].name;
         }
     }
 
     public void CreatePlayerInfo()
     {
-        var text = "Enter text...";
-        _input.placeholder.GetComponent<Text>().text = text;
-
-        if (!File.Exists(Application.dataPath + "/Resources/" + _name + ".json") || !File.Exists("Assets/Scripts/Players/" + _name + ".asset"))
+        var text = DatabaseHelper.AddPlayerInfo(_database, _name, _race.value, _profession.value, _weapon.value);
+        if (text == _name)
         {
-            var database = Main.Instance.database;
-            text = DatabaseHelper.AddPlayerInfo(database, _name, _race.value, _profession.value, _weapon.value);
-            Debug.Log(text);
+            var player = Instantiate(_prefab, _players, false).GetComponent<Player>();
+            player.name = _name;
 
-            if (text == _name)
-            {
-                var player = Instantiate(_prefab, _players, false).GetComponent<Player>();
-                player.name = _name;
-
-                player.LoadAssets(_id);
-                _id++;
-                return;
-            }
+            return;
         }
         _input.text = "";
-        StartCoroutine(ErrorMessage(text));
+        StartCoroutine(OnPlayerExist(text));
     }
 
-    private IEnumerator ErrorMessage(string text)
+    private IEnumerator OnPlayerExist(string text)
     {
         _input.placeholder.GetComponent<Text>().text = text;
         _input.interactable = false;
+        _create.interactable = false;
 
         yield return new WaitForSeconds(2f);
 
         text = "Enter text...";
         _input.placeholder.GetComponent<Text>().text = text;
         _input.interactable = true;
+        _create.interactable = true;
     }
 
     private void Update()

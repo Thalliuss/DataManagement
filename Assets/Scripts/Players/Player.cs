@@ -12,19 +12,17 @@ public class Player : MonoBehaviour
 
     public Image image;
 
-    public void LoadAssets(int id)
+    private void Start()
     {
-        _database = Main.Instance.database;
+        _database = GameManager.Instance.database;
 
-        if (File.Exists(Application.dataPath + "/Resources/" + name + ".json"))
-        {
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + name + ".json"), _database.playerInfo[id]);
-            playerInfo = _database.playerInfo[id];
-            image.sprite = playerInfo.race.sprite;
+        LoadAssets();
+    }
 
-            return;
-        }
-        playerInfo = _database.playerInfo[id];
+    public void LoadAssets()
+    {
+
+        playerInfo = DatabaseHelper.LoadPlayerInfo(_database, name);
         image.sprite = playerInfo.race.sprite;
     }
 
