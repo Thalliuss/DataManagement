@@ -4,30 +4,34 @@ using UnityEngine;
 
 public static class DatabaseHelper
 {
-    public static string AddPlayerInfo(Database database, string name, int race, int profession, int weapon)
+    public static int CurrentID;
+
+    public static string AddCharacter(Database database, string name, int race, int profession, int weapon)
     {
         if (name != "")
         {
-            var length = database.playerInfo.Count;
+            var length = database.accounts[CurrentID].characters.Count;
             for (var i = 0; i < length; i++)
-                if (name == database.playerInfo[i].name)
+                if (name == database.accounts[CurrentID].characters[i].name)
                     return "Name already taken...";
 
             var info = (PlayerInfo)ScriptableObjectHelper.CreateAsset<PlayerInfo>(name, "Assets/Scripts/Players");
 
-            database.playerInfo.Add(info);
+            Debug.Log(CurrentID);
+            database.accounts[CurrentID].characters.Add(info);
 
-            var current = database.playerInfo.Count - 1;
+            var current = database.accounts[CurrentID].characters.Count - 1;
 
-            database.playerInfo[current].name = name;
-            database.playerInfo[current].race = database.races[race];
-            database.playerInfo[current].profession = database.professions[profession];
-            database.playerInfo[current].armor = database.armor;
-            database.playerInfo[current].weapon = database.weapons[weapon];
+            database.accounts[CurrentID].characters[current].name = name;
+            database.accounts[CurrentID].characters[current].race = database.races[race];
+            database.accounts[CurrentID].characters[current].profession = database.professions[profession];
+            database.accounts[CurrentID].characters[current].armor = database.armor;
+            database.accounts[CurrentID].characters[current].weapon = database.weapons[weapon];
 
-            database.playerNames.Add(name);
+            database.accounts[CurrentID].characterNames.Add(name);
 
-            SaveJSON(name, JsonUtility.ToJson(database.playerInfo[current]));
+            SaveJSON(name, JsonUtility.ToJson(database.accounts[CurrentID].characters[current]));
+            SaveJSON(database.usernames[CurrentID] + "_account", JsonUtility.ToJson(database.accounts[CurrentID]));
             SaveJSON("database", JsonUtility.ToJson(database));
 
             return name;
@@ -35,47 +39,63 @@ public static class DatabaseHelper
         return "Name can not be emty...";
     }
 
-    internal static PlayerInfo LoadPlayerInfo(Database database, string name)
+    public static Account Login(Database database, string username, string password)
     {
-        for (var i = 0; i < database.playerInfo.Count; i++)
-            if (database.playerInfo[i].name == name) return database.playerInfo[i];
+        for (var i = 0; i < database.accounts.Count; i++)
+            if (database.accounts[i].username == username && database.accounts[i].password == password) {
+                CurrentID = i;
+                SaveJSON(username + "_account", JsonUtility.ToJson(database.accounts[i]));
+                SaveJSON("database", JsonUtility.ToJson(database));
+                return database.accounts[i];
+            }
+
+        return null;
+    }
+
+
+    internal static PlayerInfo LoadCharacter(Database database, string name)
+    {
+        for (var i = 0; i < database.accounts[CurrentID].characters.Count; i++)
+            if (database.accounts[CurrentID].characterNames[i] == name) return database.accounts[CurrentID].characters[i];
 
         return null;
     }
 
     // For Editor use only!!!
-    public static void RemovePlayerInfo(Database database)
+    public static void RemoveCharacters(Database database)
     {
-        for (var i = 0; i < database.playerNames.Count; i++)
+        for (var i = 0; i < database.accounts.Count; i++)
         {
-            var asset = "Assets/Scripts/Players/" + database.playerNames[i] + ".asset";
-            if (File.Exists(asset))
-                File.Delete(asset);
+            for (var a = 0; a < database.accounts[i].characterNames.Count; a++)
+            {
+                var asset = "Assets/Scripts/Players/" + database.accounts[i].characterNames[a] + ".asset";
+                if (File.Exists(asset))
+                    File.Delete(asset);
 
-            var json = "Assets/Resources/" + database.playerNames[i] + ".json";
-            if (File.Exists(json))
-                File.Delete(json);
+                var json = "Assets/Resources/" + database.accounts[i].characterNames[a] + ".json";
+                if (File.Exists(json))
+                    File.Delete(json);
+            }
+            var account = "Assets/Resources/" + database.usernames[i] + "_account.json";
+            if (File.Exists(account))
+                File.Delete(account);
         }
+
         var db = "Assets/Resources/database.json";
         if (File.Exists(db))
             File.Delete(db);
 
-        database.playerInfo.Clear();
-        database.playerNames.Clear();
+        database.accounts[CurrentID].characters.Clear();
+        database.accounts[CurrentID].characterNames.Clear();
 
         #if UNITY_EDITOR
         UnityEditor.AssetDatabase.Refresh();
         #endif
     }
 
-    private static void SaveJSON(string name, string info)
+    public static void SaveJSON(string name, string info)
     {
-        string path = null;
-
-        if (!Application.isEditor)
-            path = Application.dataPath + "/Resources/" + name + ".json";
-        else
-            path = "Assets/Resources/" + name + ".json";
+        string path = Application.dataPath + "/Resources/" + name + ".json";
 
         using (FileStream fs = new FileStream(path, FileMode.Create))
         {

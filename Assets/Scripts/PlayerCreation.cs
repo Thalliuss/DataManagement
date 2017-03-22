@@ -29,15 +29,18 @@ public class PlayerCreation : MonoBehaviour
     public void Start()
     {
         _database = GameManager.Instance.database;
-        for (var i = 0; i < _database.playerInfo.Count; i++) {
+
+        print(DatabaseHelper.CurrentID);
+
+        for (var i = 0; i < _database.accounts[DatabaseHelper.CurrentID].characters.Count; i++) {
             _instPlayers.Add(Instantiate(_prefab, _players, false).GetComponent<Player>());
-            _instPlayers[i].name = _database.playerInfo[i].name;
+            _instPlayers[i].name = _database.accounts[DatabaseHelper.CurrentID].characterNames[i];
         }
     }
 
     public void CreatePlayerInfo()
     {
-        var text = DatabaseHelper.AddPlayerInfo(_database, _name, _race.value, _profession.value, _weapon.value);
+        var text = DatabaseHelper.AddCharacter(_database, _name, _race.value, _profession.value, _weapon.value);
         if (text == _name)
         {
             var player = Instantiate(_prefab, _players, false).GetComponent<Player>();

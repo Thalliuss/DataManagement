@@ -15,14 +15,13 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _database = GameManager.Instance.database;
-
+    
         LoadAssets();
     }
 
     public void LoadAssets()
     {
-
-        playerInfo = DatabaseHelper.LoadPlayerInfo(_database, name);
+        playerInfo = DatabaseHelper.LoadCharacter(_database, name);
         image.sprite = playerInfo.race.sprite;
     }
 
