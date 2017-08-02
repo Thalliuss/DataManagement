@@ -19,8 +19,8 @@ public class Login : MonoBehaviour
     {
         var _database = _gameManager.database;
 
-        if (_database.FindElement(_database.accounts, _username.text) != null) {
-            var _account = (Account)_database.FindElement(_database.accounts, _username.text);
+        if (_database.FindElement(_database.accountsInfo.accounts, _username.text) != null) {
+            var _account = (Account)_database.FindElement(_database.accountsInfo.accounts, _username.text);
             if (_account.username == _username.text && _account.password == _password.text)
                 print("Logging in"); //TODO: Implement
         } else StartCoroutine(Error());
@@ -29,17 +29,20 @@ public class Login : MonoBehaviour
     public void OnSignUpButtonClicked()
     {
         var _database = _gameManager.database;
-        var _account = new Account();
 
-        _account.password = _password.text;
-        _account.Id = _username.text;
-        _account.username = _username.text;
+        if (_database.FindElement(_database.accountsInfo.accounts, _username.text) == null) {
+            var _account = new Account();
 
-        if (_database.FindElement(_database.accounts, _username.text) == null) {
-            _database.accounts.Add(_account);
-            _database.AddElement<Account>(_account);
-        }
-        else StartCoroutine(Error());
+            _account.Id = _username.text;
+            _database.accountsInfo.ids.Add(_account.Id);
+
+            _account.password = _password.text;
+            _account.username = _username.text;
+
+            _account = (Account)_database.AddElement<Account>(_account);
+            _database.accountsInfo.accounts.Add(_account);
+            _database.Update();
+        } else StartCoroutine(Error());
     }
 
     private IEnumerator Error()

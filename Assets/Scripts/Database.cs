@@ -5,28 +5,43 @@ using UnityEngine;
 [CreateAssetMenu]
 public class Database : ScriptableObject
 {
-    public List<Account> accounts = new List<Account>();
-
-    public void AddElement<T>(IDatabaseElement element) where T : ScriptableObject
+    [System.Serializable]
+    public class AccountInfo
     {
-        var _path = Application.dataPath + "/Resources/" + element.Id;
+        public List<string> ids = new List<string>();
+        public List<Account> accounts = new List<Account>();
+
+        public void Clear()
+        {
+            ids.Clear();
+            accounts.Clear();
+        }
+    }
+    public AccountInfo accountsInfo;
+
+    public ScriptableObject AddElement<T>(IDatabaseElement element) where T : ScriptableObject
+    {
         var _info = ScriptableObjectHelper.CreateAsset<T>(element.Id, "Assets/Resources");
 
         SaveJSON(element.Id, JsonUtility.ToJson(element));
-        JsonUtility.FromJsonOverwrite(File.ReadAllText(_path + ".json"), _info);
+        JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + element.Id + ".json"), _info);
+
+        return _info;
+    }
+
+    public void Update()
+    {
         SaveJSON(this.ToString(), JsonUtility.ToJson(this));
-        JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + this.ToString() + ".json"), _info);
+        JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + this.ToString() + ".json"), this);
     }
 
     public void RemoveElement<T>(IDatabaseElement element) where T : ScriptableObject
     {
-        var _path = Application.dataPath + "/Resources/" + element.ToString();
-
-        var asset = _path + ".asset";
+        var asset = Application.dataPath + "/Resources/" + element.ToString() + ".asset";
         if (File.Exists(asset))
             File.Delete(asset);
 
-        var json = _path + ".json";
+        var json = Application.dataPath + "/Resources/" + element.ToString() + ".json";
         if (File.Exists(json))
             File.Delete(json);
 
