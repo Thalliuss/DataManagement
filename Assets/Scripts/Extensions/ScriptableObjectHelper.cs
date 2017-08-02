@@ -6,9 +6,6 @@ using UnityEditor;
 
 public static class ScriptableObjectHelper
 {
-    /// <summary>
-    //	This makes it easy to create, name and place unique new ScriptableObject asset files.
-    /// </summary>
     public static ScriptableObject CreateAsset<T>(string name, string path) where T : ScriptableObject
     {
         T asset = ScriptableObject.CreateInstance<T>();
