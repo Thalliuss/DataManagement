@@ -4,14 +4,16 @@
 using UnityEditor;
 #endif
 
-public static class ScriptableObjectHelper
+public static class DataParser
 {
-    public static ScriptableObject CreateAsset<T>(string name, string path) where T : ScriptableObject
+    public static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
     {
+        var _path = "Assets/Elements/";
+
         T asset = ScriptableObject.CreateInstance<T>();
 
         #if UNITY_EDITOR
-        string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/" + name + ".asset");
+        string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(_path + name + ".asset");
 
         AssetDatabase.CreateAsset(asset, assetPathAndName);
 

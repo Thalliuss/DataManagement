@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Login : MonoBehaviour
@@ -17,31 +18,31 @@ public class Login : MonoBehaviour
 
     public void OnLoginButtonClicked ()
     {
-        var _database = _gameManager.database;
+        var _data = _gameManager.data;
 
-        if (_database.FindElement(_database.accountsInfo.accounts, _username.text) != null) {
-            var _account = (Account)_database.FindElement(_database.accountsInfo.accounts, _username.text);
-            if (_account.username == _username.text && _account.password == _password.text)
-                print("Logging in"); //TODO: Implement
+        if (_data.FindElement(_username.text) != null) {
+            var _account = (Account)_data.FindElement(_username.text);
+            if (_account.username == _username.text && _account.password == _password.text) 
+                SceneManager.LoadScene("Main");
         } else StartCoroutine(Error());
     }
 
     public void OnSignUpButtonClicked()
     {
-        var _database = _gameManager.database;
+        var _data = _gameManager.data;
 
-        if (_database.FindElement(_database.accountsInfo.accounts, _username.text) == null) {
+        if (_data.FindElement(_username.text) == null) {
             var _account = new Account();
 
             _account.Id = _username.text;
-            _database.accountsInfo.ids.Add(_account.Id);
+            _data.saveData.ids.Add(_account.Id);
 
             _account.password = _password.text;
             _account.username = _username.text;
 
-            _account = (Account)_database.AddElement<Account>(_account);
-            _database.accountsInfo.accounts.Add(_account);
-            _database.Update();
+            _data.AddElement<Account>(_account);
+            _data.Update();
+
         } else StartCoroutine(Error());
     }
 
