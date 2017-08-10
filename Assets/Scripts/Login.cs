@@ -6,19 +6,19 @@ using UnityEngine.UI;
 
 public class Login : MonoBehaviour
 {
-    private GameManager _gameManager;
+    private DataManager _dataManager;
 
     [SerializeField] private InputField _username;
     [SerializeField] private InputField _password;
 
     private void Start()
     {
-        _gameManager = GameManager.Instance;
+        _dataManager = DataManager.Instance;
     }
 
     public void OnLoginButtonClicked ()
     {
-        var _data = _gameManager.data;
+        var _data = _dataManager.data;
 
         if (_data.FindElement(_username.text) != null) {
             var _account = (Account)_data.FindElement(_username.text);
@@ -29,7 +29,7 @@ public class Login : MonoBehaviour
 
     public void OnSignUpButtonClicked()
     {
-        var _data = _gameManager.data;
+        var _data = _dataManager.data;
 
         if (_data.FindElement(_username.text) == null) {
             var _account = new Account();
@@ -41,7 +41,6 @@ public class Login : MonoBehaviour
             _account.username = _username.text;
 
             _data.AddElement<Account>(_account);
-            _data.Update();
 
         } else StartCoroutine(Error());
     }

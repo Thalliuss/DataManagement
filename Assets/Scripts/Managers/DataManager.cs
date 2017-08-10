@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class DataManager : MonoBehaviour
 {
-    private static GameManager _instance;
-    public static GameManager Instance
+    private static DataManager _instance;
+    public static DataManager Instance
     {
         get
         {
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(transform);
 
         if (_instance == null)
             _instance = this;
@@ -49,8 +50,18 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        for (int i = 0; i < data.saveData.info.Count; i++)
+        {
+            var _path = "Assets/Elements/" + data.saveData.ids[i] + ".asset";
+            if (File.Exists(_path)) { File.Delete(_path); }
+        }
+
         data.saveData.ids.Clear();
         data.saveData.info.Clear();
         data.saveData.types.Clear();
+
+        #if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+        #endif
     }
 }

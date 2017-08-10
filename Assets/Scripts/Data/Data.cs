@@ -24,6 +24,8 @@ public class Data : ScriptableObject
 
         saveData.info.Add(_info);
         saveData.types.Add(_info.GetType().ToString());
+
+        Update();
     }
 
     public DataElement FindElement(string id)
