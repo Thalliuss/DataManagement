@@ -1,9 +1,10 @@
 # Title
 
-> This is an example file with default selections.
+> Element Folder.
 
 
 ## Usage
 
 ```
+.asset files will be saved here in runtime.
 ```

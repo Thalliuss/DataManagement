@@ -20,10 +20,11 @@ public class Login : MonoBehaviour
     {
         var _data = _dataManager.data;
 
-        if (_data.FindElement(_username.text) != null) {
-            var _account = (Account)_data.FindElement(_username.text);
-            if (_account.username == _username.text && _account.password == _password.text) 
+        if (_data.FindElement<Account>(_username.text) != null) {
+            var _account = (Account)_data.FindElement<Account>(_username.text);
+            if (_account.username == _username.text && _account.password == _password.text) {
                 SceneManager.LoadScene("Main");
+            }
         } else StartCoroutine(Error());
     }
 
@@ -31,7 +32,7 @@ public class Login : MonoBehaviour
     {
         var _data = _dataManager.data;
 
-        if (_data.FindElement(_username.text) == null) {
+        if (_data.FindElement<Account>(_username.text) == null) {
             var _account = new Account();
 
             _account.Id = _username.text;

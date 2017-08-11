@@ -19,7 +19,7 @@ public class Data : ScriptableObject
     {
         T _info = (T)DataParser.CreateAsset<T>(element.Id);
 
-        SaveJSON(element.Id, JsonUtility.ToJson(element));
+        DataParser.SaveJSON(element.Id, JsonUtility.ToJson(element));
         JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + element.Id + ".json"), _info);
 
         saveData.info.Add(_info);
@@ -28,36 +28,22 @@ public class Data : ScriptableObject
         Update();
     }
 
-    public DataElement FindElement(string id)
+    public DataElement FindElement<T>(string id) where T : DataElement
     {
         for (int i = 0; i < saveData.ids.Count; i++)
         {
             if (saveData.ids[i] == id)
-                return saveData.info[i];
+                return (T)saveData.info[i];
         }
         return null;
     }
 
-    private void SaveJSON(string name, string info) 
-    {
-        var _path = Application.dataPath + "/Resources/" + name + ".json";
-
-        using (FileStream fs = new FileStream(_path, FileMode.Create))
-        {
-            using (StreamWriter writer = new StreamWriter(fs))
-            {
-                writer.Write(info);
-            }
-        }
-        #if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        #endif
-    }
-
     public void Update()
     {
-        SaveJSON(this.ToString(), JsonUtility.ToJson(this));
+        DataParser.SaveJSON(this.ToString(), JsonUtility.ToJson(this));
         JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + this.ToString() + ".json"), this);
     }
 }
+
+
 

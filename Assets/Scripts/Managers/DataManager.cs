@@ -19,9 +19,9 @@ public class DataManager : MonoBehaviour
         }
     }
 
-    private DataBuilder _builder;
-
     [Header("Data.")] public Data data;
+
+    private DataBuilder _builder;
 
     private void Awake()
     {

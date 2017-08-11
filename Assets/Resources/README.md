@@ -1,9 +1,10 @@
 # Title
 
-> This is an example file with default selections.
+> Resource Folder.
 
 
 ## Usage
 
 ```
+.json files will be saved here in runtime.
 ```

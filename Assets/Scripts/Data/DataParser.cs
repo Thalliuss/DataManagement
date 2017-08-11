@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -6,7 +7,7 @@ using UnityEditor;
 
 public static class DataParser
 {
-    public static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
+    internal static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
     {
         var _path = "Assets/Elements/";
 
@@ -24,6 +25,22 @@ public static class DataParser
         #endif
 
         return asset;
+    }
+
+    internal static void SaveJSON(string name, string info)
+    {
+        var _path = Application.dataPath + "/Resources/" + name + ".json";
+
+        using (FileStream fs = new FileStream(_path, FileMode.Create))
+        {
+            using (StreamWriter writer = new StreamWriter(fs))
+            {
+                writer.Write(info);
+            }
+        }
+        #if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+        #endif
     }
 }
 
