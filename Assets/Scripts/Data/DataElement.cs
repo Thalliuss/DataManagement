@@ -1,11 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.IO;
+using System;
 
 public class DataElement : ScriptableObject
 {
+    private DataManager _dataManager;
+    private DataBuilder _builder;
+
+    private void Awake()
+    {
+        _dataManager = DataManager.Instance;
+    }
+
     [Header("Element's ID:"), SerializeField]
     private string _id;
-    public string Id
+    public string ID
     {
         get
         {
@@ -16,5 +25,61 @@ public class DataElement : ScriptableObject
         {
             _id = value;
         }
+    }
+
+    [Header("Element's SaveData:")]
+    public Data.SaveData saveData;
+
+    public void AddElement<T>(DataElement element) where T : DataElement
+    {
+        for (int i = 0; i < saveData.ids.Count; i++)
+            if (element.ID == saveData.ids[i]) throw new ArgumentException("Argument already exists.");
+
+        T _info = (T)DataParser.CreateAsset<T>(element.ID);
+
+        DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info);
+
+        saveData.ids.Add(element.ID);
+        saveData.info.Add(_info);
+        saveData.types.Add(_info.GetType().ToString());
+
+        Update();
+    }
+
+	public T FindElement<T>(string id) where T : DataElement
+	{
+		for (int i = 0; i < saveData.ids.Count; i++)
+		{
+			if (saveData.ids[i] == id)
+				return saveData.info[i] as T;
+		}
+		return null;
+	}
+
+    public void Build()
+    {
+        _builder = new DataBuilder(saveData);
+        for (int i = 0; i < saveData.ids.Count; i++)
+        {
+            _builder.BuildElement<DataElement>(i);
+            saveData.info[i].Build();
+        }
+    }
+
+    public void Update()
+    {
+        DataParser.SaveJSON(_id.ToString(), JsonUtility.ToJson(this));
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + _id.ToString() + ".json"))	, this);
+    }
+
+    public void Destroy()
+    {
+        for (int i = 0; i < saveData.ids.Count; i++)
+			saveData.info[i].Destroy();
+
+        saveData.ids.Clear();
+        saveData.info.Clear();
+        saveData.types.Clear();
     }
 }

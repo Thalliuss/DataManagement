@@ -1,46 +1,42 @@
 ﻿using UnityEngine;
-using System.IO;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using System.IO;
+using System.Text;
+using System.Security.Cryptography;
+
 
 public static class DataParser
 {
-    internal static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
+	public static string Encrypt(string s)
+	{
+		if (DataManager.Instance.encrypt) {
+			byte[] inputbuffer = Encoding.Unicode.GetBytes (s);
+			byte[] outputBuffer = DES.Create ().CreateEncryptor (Data.key, Data.iv).TransformFinalBlock (inputbuffer, 0, inputbuffer.Length);
+			return System.Convert.ToBase64String (outputBuffer);
+		} else return s;
+	}
+
+	public static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
     {
-        var _path = "Assets/Elements/";
-
-        T asset = ScriptableObject.CreateInstance<T>();
-
-        #if UNITY_EDITOR
-        string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(_path + name + ".asset");
-
-        AssetDatabase.CreateAsset(asset, assetPathAndName);
-
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-        EditorUtility.FocusProjectWindow();
-        Selection.activeObject = asset;
-        #endif
-
-        return asset;
+		T _asset = ScriptableObject.CreateInstance<T> () as T;
+			
+		return _asset;
     }
-
-    internal static void SaveJSON(string name, string info)
+	
+		
+    public static void SaveJSON(string name, string info)
     {
-        var _path = Application.dataPath + "/Resources/" + name + ".json";
+        var _path = Application.persistentDataPath + "/Resources/" + name + ".json";
+		if (!File.Exists (_path)) File.Delete(_path);
+		Debug.Log("Creating JSON file... " + _path);
 
         using (FileStream fs = new FileStream(_path, FileMode.Create))
         {
             using (StreamWriter writer = new StreamWriter(fs))
             {
-                writer.Write(info);
+				writer.Write(Encrypt(info));
             }
         }
-        #if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        #endif
     }
 }
 

@@ -6,6 +6,17 @@ using UnityEngine;
 [CreateAssetMenu]
 public class Data : ScriptableObject
 {
+	public static byte[] key = new byte[8] {14, 43, 26, 54, 78, 107, 31, 65};
+	public static byte[] iv = new byte[8] {10, 28, 20, 35, 88, 11, 7, 107};
+
+	public string DataSaveID {
+		get {
+			return _dataSaveID;
+		}
+	}
+	private const string _dataSaveID = "SAVE_DATA";
+
+
     [Serializable]
     public class SaveData
     {
@@ -17,31 +28,57 @@ public class Data : ScriptableObject
 
     public void AddElement<T>(DataElement element) where T : DataElement
     {
-        T _info = (T)DataParser.CreateAsset<T>(element.Id);
+        for (int i = 0; i < saveData.ids.Count; i++)
+            if (element.ID == saveData.ids[i]) throw new ArgumentException("Argument already exists.");
 
-        DataParser.SaveJSON(element.Id, JsonUtility.ToJson(element));
-        JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + element.Id + ".json"), _info);
+        T _info = (T)DataParser.CreateAsset<T>(element.ID);
 
+        DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info);
+
+        saveData.ids.Add(element.ID);
         saveData.info.Add(_info);
         saveData.types.Add(_info.GetType().ToString());
 
         Update();
     }
 
-    public DataElement FindElement<T>(string id) where T : DataElement
+	public void ReplaceElement<T>(DataElement element, int index) where T : DataElement
+	{
+		for (int i = 0; i < saveData.ids.Count; i++) 
+		{
+			if (element.ID == saveData.ids [i]) break; 
+			else throw new ArgumentException ("Argument does not exists.");
+		}
+
+		T _info = (T)DataParser.CreateAsset<T>(element.ID);
+
+		File.Delete (Application.persistentDataPath + "/Resources/" + element.ID + ".json");
+
+		DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info as T);
+
+		saveData.ids[index] = element.ID;
+		saveData.info[index] = _info;
+		saveData.types[index] = _info.GetType().ToString();
+
+		Update();
+	}
+
+	public T FindElement<T>(string id) where T : DataElement
     {
         for (int i = 0; i < saveData.ids.Count; i++)
         {
             if (saveData.ids[i] == id)
-                return (T)saveData.info[i];
+				return saveData.info[i] as T;
         }
         return null;
     }
 
     public void Update()
     {
-        DataParser.SaveJSON(this.ToString(), JsonUtility.ToJson(this));
-        JsonUtility.FromJsonOverwrite(File.ReadAllText(Application.dataPath + "/Resources/" + this.ToString() + ".json"), this);
+		DataParser.SaveJSON(_dataSaveID, JsonUtility.ToJson(this));
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + _dataSaveID + ".json")), this);
     }
 }
 

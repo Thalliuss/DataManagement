@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
 {
+
     private static DataManager _instance;
     public static DataManager Instance
     {
@@ -19,13 +19,19 @@ public class DataManager : MonoBehaviour
         }
     }
 
-    [Header("Data.")] public Data data;
+    [Header("Enable/Disable Encryption.")]
+    public bool encrypt;
+
+    [Header("Data.")]
+    public Data data;
 
     private DataBuilder _builder;
 
     private void Awake()
     {
-        DontDestroyOnLoad(transform);
+		var _path = Application.persistentDataPath + "/Resources/";
+		if (!Directory.Exists(_path))
+			Directory.CreateDirectory (_path);
 
         if (_instance == null)
             _instance = this;
@@ -35,33 +41,26 @@ public class DataManager : MonoBehaviour
 
     private void Build()
     {
-        _builder = new DataBuilder(data);
+        _builder = new DataBuilder(data.saveData);
 
         _builder.BuildData();
 
-        // Add new DataElement inheritants to the for loop below.
         for (int i = 0; i < data.saveData.info.Count; i++)
         {
-            if (data.saveData.types[i] == "Account") {
-                _builder.BuildElement<Account>(data.saveData.info[i], i);
-            } else _builder.BuildElement<DataElement>(data.saveData.info[i], i);
+			if (data.saveData.types[i] == "Account") {
+				_builder.BuildElement<Account>(i);
+                data.saveData.info[i].Build();
+			} 
         }
     }
 
     private void OnDestroy()
     {
         for (int i = 0; i < data.saveData.info.Count; i++)
-        {
-            var _path = "Assets/Elements/" + data.saveData.ids[i] + ".asset";
-            if (File.Exists(_path)) { File.Delete(_path); }
-        }
+			data.saveData.info[i].Destroy();
 
         data.saveData.ids.Clear();
         data.saveData.info.Clear();
         data.saveData.types.Clear();
-
-        #if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        #endif
     }
 }

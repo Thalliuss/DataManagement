@@ -1,41 +1,48 @@
 ﻿using UnityEngine;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 public class DataBuilder
 {
-    private Data _data;
+    private Data.SaveData _data;
+    private DataManager _dataManager;
 
-    public DataBuilder(Data data)
+    public DataBuilder(Data.SaveData data)
     {
         _data = data;
+        _dataManager = DataManager.Instance;
     }
+
+	public static string Decrypt(string s) 
+	{
+		if (DataManager.Instance.encrypt) {
+			byte[] inputbuffer = System.Convert.FromBase64String (s);
+			byte[] outputBuffer = DES.Create ().CreateDecryptor (Data.key, Data.iv).TransformFinalBlock (inputbuffer, 0, inputbuffer.Length);
+			return Encoding.Unicode.GetString (outputBuffer);
+		} else return s;
+	}
 
     public void BuildData()
+	{
+		var _path = Application.persistentDataPath + "/Resources/" + _dataManager.data.DataSaveID + ".json";
+
+		if (File.Exists (_path)) 
+			JsonUtility.FromJsonOverwrite (Decrypt (File.ReadAllText (_path)), _dataManager.data);
+	}
+
+	public void BuildElement<T>(int index) where T : DataElement
     {
-        var _path = Application.dataPath + "/Resources/";
+        var _id = _data.ids[index].ToString();
+		var _path = Application.persistentDataPath + "/Resources/" + _id + ".json";
 
-        if (File.Exists(_path + _data.ToString() + ".json"))
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(_path + _data.ToString() + ".json"), _data);
+        if (File.Exists(_path)) {
+			Debug.Log ("Building: " + _path);
 
-        #if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        #endif
-    }
+			var _element = DataParser.CreateAsset<T> (_id) as T;
+			JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(_path)), _element);
 
-    public void BuildElement<T>(DataElement element, int index) where T : ScriptableObject
-    {
-        var _path = Application.dataPath + "/Resources/";
-        var _id = _data.saveData.ids[index].ToString();
-
-        if (File.Exists(_path + _id + ".json")) {
-            element = (DataElement)DataParser.CreateAsset<T>(_id);
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(_path + _id + ".json"), element);
+			_data.info[index] = _element;
         }
-        _data.saveData.info[index] = element;
-        _data.Update();
-
-        #if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        #endif
     }
 }
