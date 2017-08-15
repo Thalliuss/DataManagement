@@ -2,7 +2,11 @@
 using System.IO;
 using System;
 
-public class DataElement : ScriptableObject
+public abstract class Constructor<T> : ScriptableObject
+{
+    public Constructor(T id) { }
+}
+public class DataElement : Constructor<string>
 {
     private DataManager _dataManager;
     private DataBuilder _builder;
@@ -12,8 +16,6 @@ public class DataElement : ScriptableObject
         _dataManager = DataManager.Instance;
     }
 
-    [Header("Element's ID:"), SerializeField]
-    private string _id;
     public string ID
     {
         get
@@ -26,9 +28,16 @@ public class DataElement : ScriptableObject
             _id = value;
         }
     }
+    [Header("Element's ID:"), SerializeField]
+    private string _id;
 
     [Header("Element's SaveData:")]
     public Data.SaveData saveData;
+
+    public DataElement(string id) : base(id)
+    {
+        _id = ID;
+    }
 
     public void AddElement<T>(DataElement element) where T : DataElement
     {
@@ -38,7 +47,7 @@ public class DataElement : ScriptableObject
         T _info = (T)DataParser.CreateAsset<T>(element.ID);
 
         DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
-		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info);
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/SaveData/" + element.ID + ".json")), _info);
 
         saveData.ids.Add(element.ID);
         saveData.info.Add(_info);
@@ -70,7 +79,7 @@ public class DataElement : ScriptableObject
     public void Update()
     {
         DataParser.SaveJSON(_id.ToString(), JsonUtility.ToJson(this));
-		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + _id.ToString() + ".json"))	, this);
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/SaveData/" + _id.ToString() + ".json")), this);
     }
 
     public void Destroy()
@@ -83,3 +92,4 @@ public class DataElement : ScriptableObject
         saveData.types.Clear();
     }
 }
+

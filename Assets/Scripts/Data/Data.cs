@@ -34,7 +34,7 @@ public class Data : ScriptableObject
         T _info = (T)DataParser.CreateAsset<T>(element.ID);
 
         DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
-		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info);
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/SaveData/" + element.ID + ".json")), _info);
 
         saveData.ids.Add(element.ID);
         saveData.info.Add(_info);
@@ -53,10 +53,10 @@ public class Data : ScriptableObject
 
 		T _info = (T)DataParser.CreateAsset<T>(element.ID);
 
-		File.Delete (Application.persistentDataPath + "/Resources/" + element.ID + ".json");
+		File.Delete (Application.persistentDataPath + "/SaveData/" + element.ID + ".json");
 
 		DataParser.SaveJSON(element.ID, JsonUtility.ToJson(element));
-		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + element.ID + ".json")), _info as T);
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/SaveData/" + element.ID + ".json")), _info as T);
 
 		saveData.ids[index] = element.ID;
 		saveData.info[index] = _info;
@@ -78,7 +78,7 @@ public class Data : ScriptableObject
     public void Update()
     {
 		DataParser.SaveJSON(_dataSaveID, JsonUtility.ToJson(this));
-		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/Resources/" + _dataSaveID + ".json")), this);
+		JsonUtility.FromJsonOverwrite(DataBuilder.Decrypt(File.ReadAllText(Application.persistentDataPath + "/SaveData/" + _dataSaveID + ".json")), this);
     }
 }
 

@@ -26,7 +26,7 @@ public static class DataParser
 		
     public static void SaveJSON(string name, string info)
     {
-        var _path = Application.persistentDataPath + "/Resources/" + name + ".json";
+        var _path = Application.persistentDataPath + "/SaveData/" + name + ".json";
 		if (!File.Exists (_path)) File.Delete(_path);
 		Debug.Log("Creating JSON file... " + _path);
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
@@ -29,7 +28,7 @@ public class DataManager : MonoBehaviour
 
     private void Awake()
     {
-		var _path = Application.persistentDataPath + "/Resources/";
+		var _path = Application.persistentDataPath + "/SaveData/";
 		if (!Directory.Exists(_path))
 			Directory.CreateDirectory (_path);
 
@@ -54,6 +53,11 @@ public class DataManager : MonoBehaviour
         }
     }
 
+    private DataElement TestBuild<T>(T target) where T : DataElement
+    {
+        return target;
+    }
+
     private void OnDestroy()
     {
         for (int i = 0; i < data.saveData.info.Count; i++)
@@ -62,5 +66,20 @@ public class DataManager : MonoBehaviour
         data.saveData.ids.Clear();
         data.saveData.info.Clear();
         data.saveData.types.Clear();
+    }
+
+    [ContextMenu("Clear")]
+    public void Clear()
+    {
+        var _path = Application.persistentDataPath + "/SaveData/";
+
+        #if UNITY_EDITOR
+        if (Directory.Exists(_path)) {
+            UnityEditor.FileUtil.DeleteFileOrDirectory(_path);
+            Debug.Log("Succesfully cleaned all saved data...");
+        }
+        #endif
+
+        OnDestroy();
     }
 }

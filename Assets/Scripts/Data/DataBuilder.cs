@@ -25,7 +25,7 @@ public class DataBuilder
 
     public void BuildData()
 	{
-		var _path = Application.persistentDataPath + "/Resources/" + _dataManager.data.DataSaveID + ".json";
+		var _path = Application.persistentDataPath + "/SaveData/" + _dataManager.data.DataSaveID + ".json";
 
 		if (File.Exists (_path)) 
 			JsonUtility.FromJsonOverwrite (Decrypt (File.ReadAllText (_path)), _dataManager.data);
@@ -34,7 +34,7 @@ public class DataBuilder
 	public void BuildElement<T>(int index) where T : DataElement
     {
         var _id = _data.ids[index].ToString();
-		var _path = Application.persistentDataPath + "/Resources/" + _id + ".json";
+		var _path = Application.persistentDataPath + "/SaveData/" + _id + ".json";
 
         if (File.Exists(_path)) {
 			Debug.Log ("Building: " + _path);
