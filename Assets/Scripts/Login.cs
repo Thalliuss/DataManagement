@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
-using System.Collections;
 
 public class Login : MonoBehaviour
 {
@@ -18,10 +18,10 @@ public class Login : MonoBehaviour
 
     public void OnLoginButtonClicked ()
     {
-        var _data = _dataManager.data;
+        var _dataReferences = _dataManager.DataReferences;
 
-        if (_data.FindElement<Account>(_username.text.ToUpper()) != null) {
-            var _account = _data.FindElement<Account>(_username.text.ToUpper());
+        if (_dataReferences.FindElement<Account>(_username.text.ToUpper()) != null) {
+            var _account = _dataReferences.FindElement<Account>(_username.text.ToUpper());
             if (_username.text == _account.Username  && _password.text == _account.Password) {
                 SceneManager.LoadScene("Main");
             }
@@ -30,10 +30,10 @@ public class Login : MonoBehaviour
 
     public void OnSignUpButtonClicked()
     {
-        var _data = _dataManager.data;
+        var _dataReferences = _dataManager.DataReferences;
 
-        if (_data.FindElement<Account>(_username.text) == null) {
-            _data.AddElement<Account>(new Account(_username.text.ToUpper(), _username.text, _password.text));
+        if (_dataReferences.FindElement<Account>(_username.text) == null) {
+            _dataReferences.AddElement<Account>(new Account(_username.text.ToUpper(), _username.text, _password.text));
         } else StartCoroutine(Error());
     }
 

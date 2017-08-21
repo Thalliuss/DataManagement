@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
 {
-
     private static DataManager _instance;
     public static DataManager Instance
     {
@@ -21,57 +23,56 @@ public class DataManager : MonoBehaviour
     [Header("Enable/Disable Encryption.")]
     public bool encrypt;
 
-    [Header("Data.")]
-    public Data data;
-
-    private DataBuilder _builder;
+    public DataReferences DataReferences
+    {
+        get {
+            return _dataReferences;
+        }
+    }
+    [Header("Data."), SerializeField]
+    private DataReferences _dataReferences;
 
     private void Awake()
     {
-		var _path = Application.persistentDataPath + "/SaveData/";
-		if (!Directory.Exists(_path))
+        var _path = Application.persistentDataPath + "/" + DataReferences.ID + "/";
+        if (!Directory.Exists(_path))
 			Directory.CreateDirectory (_path);
 
-        if (_instance == null)
-            _instance = this;
+		if (_instance != null)
+			Destroy (gameObject);
+
+		_instance = this;
 
         Build();
     }
 
     private void Build()
     {
-        _builder = new DataBuilder(data.saveData);
+        DataBuilder.BuildDataReferences();
 
-        _builder.BuildData();
-
-        for (int i = 0; i < data.saveData.info.Count; i++)
+        for (int i = 0; i < _dataReferences.SaveData.info.Count; i++)
         {
-			if (data.saveData.types[i] == "Account") {
-				_builder.BuildElement<Account>(i);
-                data.saveData.info[i].Build();
-			} 
+			if (_dataReferences.SaveData.types [i] == "Account") {
+				DataBuilder.BuildElement<Account>(_dataReferences.SaveData, i);
+				_dataReferences.SaveData.info [i].Build ();
+			}
         }
-    }
-
-    private DataElement TestBuild<T>(T target) where T : DataElement
-    {
-        return target;
     }
 
     private void OnDestroy()
     {
-        for (int i = 0; i < data.saveData.info.Count; i++)
-			data.saveData.info[i].Destroy();
+        for (int i = 0; i < _dataReferences.SaveData.info.Count; i++)
+            _dataReferences.SaveData.info[i].Destroy();
 
-        data.saveData.ids.Clear();
-        data.saveData.info.Clear();
-        data.saveData.types.Clear();
+        _dataReferences.SaveData.ids.Clear();
+        _dataReferences.SaveData.info.Clear();
+        _dataReferences.SaveData.types.Clear();
     }
 
     [ContextMenu("Clear")]
     public void Clear()
     {
-        var _path = Application.persistentDataPath + "/SaveData/";
+        var _path = Application.persistentDataPath + "/" + _dataReferences.ID + "/";
 
         #if UNITY_EDITOR
         if (Directory.Exists(_path)) {
@@ -79,7 +80,5 @@ public class DataManager : MonoBehaviour
             Debug.Log("Succesfully cleaned all saved data...");
         }
         #endif
-
-        OnDestroy();
     }
 }

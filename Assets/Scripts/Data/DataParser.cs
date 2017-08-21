@@ -11,24 +11,23 @@ public static class DataParser
 	{
 		if (DataManager.Instance.encrypt) {
 			byte[] inputbuffer = Encoding.Unicode.GetBytes (s);
-			byte[] outputBuffer = DES.Create ().CreateEncryptor (Data.key, Data.iv).TransformFinalBlock (inputbuffer, 0, inputbuffer.Length);
+			byte[] outputBuffer = DES.Create ().CreateEncryptor (DataReferences.key, DataReferences.iv).TransformFinalBlock (inputbuffer, 0, inputbuffer.Length);
 			return System.Convert.ToBase64String (outputBuffer);
-		} else return s;
+		} else return s; 
 	}
 
 	public static ScriptableObject CreateAsset<T>(string name) where T : ScriptableObject
     {
-		T _asset = ScriptableObject.CreateInstance<T> () as T;
-			
-		return _asset;
+        var _path = Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + name + ".asset";
+        T _asset = ScriptableObject.CreateInstance<T> () as T;
+
+        return _asset;
     }
 	
-		
     public static void SaveJSON(string name, string info)
     {
-        var _path = Application.persistentDataPath + "/SaveData/" + name + ".json";
+        var _path = Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + name + ".json";
 		if (!File.Exists (_path)) File.Delete(_path);
-		Debug.Log("Creating JSON file... " + _path);
 
         using (FileStream fs = new FileStream(_path, FileMode.Create))
         {
