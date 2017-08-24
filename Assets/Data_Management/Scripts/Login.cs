@@ -32,7 +32,7 @@ public class Login : MonoBehaviour
     {
         var _dataReferences = _dataManager.DataReferences;
 
-        if (_dataReferences.FindElement<Account>(_username.text) == null) {
+        if (_dataReferences.FindElement<Account>(_username.text.ToUpper()) == null) {
             _dataReferences.AddElement<Account>(new Account(_username.text.ToUpper(), _username.text, _password.text));
         } else StartCoroutine(Error());
     }

@@ -3,11 +3,11 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 
-public abstract class Constructor<T> : ScriptableObject
+public abstract class Singleton<T> : ScriptableObject
 {
-	public Constructor(T id) { }
+	public Singleton(T id) { }
 }
-public class DataElement : Constructor<string>
+public class DataElement : Singleton<string>
 {
     public string ID {
         get {
@@ -46,9 +46,9 @@ public class DataElement : Constructor<string>
 
 		_saveData.ids.Add(element.ID);
 		_saveData.info.Add(_info);
-		_saveData.types.Add(_info.GetType().ToString());
+        _saveData.types.Add(_info.GetType().ToString());
 
-		Save();
+        Save();
     }
 
     public void ReplaceElement<T>(DataElement element, int index) where T : DataElement
@@ -70,21 +70,21 @@ public class DataElement : Constructor<string>
         _saveData.info[index] = _info;
         _saveData.types[index] = _info.GetType().ToString();
 
-		Save();
+        Save();
     }
 
 	public void RemoveElement<T>(string id) where T : DataElement
 	{
 		for (int i = 0; i < _saveData.ids.Count; i++)
 		{
-			if (_saveData.ids [i] == id && typeof(T).Name == _saveData.types[i]) {
+			if (_saveData.ids [i] == id && typeof(T).Name == _saveData.info[i].GetType().ToString()) {
 				Debug.Log("Removing " + typeof(T).Name + ": " + id);
 
 				_saveData.info.Remove (_saveData.info [i]);
 				_saveData.ids.Remove (_saveData.ids [i]);
-				_saveData.types.Remove (_saveData.types [i]);
+                _saveData.types.Remove(_saveData.types[i]);
 
-				File.Delete(Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + id + ".json");
+                File.Delete(Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + id + ".json");
 				Save ();
 			}
 		}
@@ -100,8 +100,15 @@ public class DataElement : Constructor<string>
 		return null;
 	}
 
+    public T FindElement<T>(int index) where T : DataElement
+    {
+        if (SaveData.info[index].GetType() == typeof(T))
+            return _saveData.info[index] as T;
 
-	public List<T> FindElementsOfType<T> () where T : DataElement
+        return null;
+    }
+
+    public List<T> FindElementsOfType<T> () where T : DataElement
 	{
 		var _temp = new List<T> ();
 		for (int i = 0; i < SaveData.ids.Count; i++)
@@ -113,12 +120,14 @@ public class DataElement : Constructor<string>
 		_temp.Reverse ();
 		return _temp;
 	}
-		
-    public void Build()
+
+
+    public void Build<T>() where T : DataElement
     {
-		for (int i = 0; i < _saveData.ids.Count; i++)
+        for (int i = 0; i < _saveData.ids.Count; i++)
         {
-			DataBuilder.BuildElement<DataElement>(_saveData, i);
+            if (_saveData.info[i].GetType() == typeof(T))
+                DataBuilder.BuildElementsOfType<T>();
         }
     }
 
@@ -132,7 +141,7 @@ public class DataElement : Constructor<string>
     {
 		_saveData.ids.Clear();
 		_saveData.info.Clear();
-		_saveData.types.Clear();
+        _saveData.types.Clear();
     }
 }
 

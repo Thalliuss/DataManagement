@@ -16,3 +16,5 @@ MonoBehaviour:
     ids: []
     types: []
     info: []
+  _data: []
+  initialID: SAVED_DATA

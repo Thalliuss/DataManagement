@@ -28,12 +28,22 @@ public class DataReferences : DataElement
 		}
 		return null;
 	}
-		
-	[Header("Reference Data:"), SerializeField]
+
+    public T FindDataElement<T>(int index) where T : DataElement
+    {
+        if (_data[index].GetType() == typeof(T))
+            return _data[index] as T;
+
+        return null;
+    }
+
+    [Header("Reference Data:"), SerializeField]
 	private List<DataElement> _data = new List<DataElement>();
 
     public static byte[] key = new byte[8] { 14, 43, 26, 54, 78, 107, 31, 65 };
     public static byte[] iv = new byte[8] { 10, 28, 20, 35, 88, 11, 7, 107 };
+
+    [HideInInspector] public string initialID;
 
     [Serializable]
     public class SavedElement

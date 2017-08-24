@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 using System.IO;
 using System.Text;
@@ -20,6 +23,15 @@ public static class DataParser
     {
         var _path = Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + name + ".asset";
         T _asset = ScriptableObject.CreateInstance<T> () as T;
+
+        #if UNITY_EDITOR
+        AssetDatabase.CreateAsset(_asset, "Assets/Temp_Assets/" + name + ".asset");
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.FocusProjectWindow();
+        Selection.activeObject = _asset;
+        #endif
 
         return _asset;
     }
