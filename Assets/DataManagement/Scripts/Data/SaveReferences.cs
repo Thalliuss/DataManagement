@@ -25,14 +25,14 @@ namespace DataManagement
             {
                 _data[i] = _data[i].Replace(_path, "");
 
-                if (_data[i].Contains(DataManager.Instance.DataReferences.ID))
+                if (_data[i].Contains(DataManager.Instance.DataReferences.initialID))
                 {
                     saveData.Add(_data[i]);
 
-                    if (_data[i] != DataManager.Instance.DataReferences.ID)
+                    if (_data[i] != DataManager.Instance.DataReferences.initialID)
                         load.options.Add(new Dropdown.OptionData(_data[i]));
                     
-                    else load.options.Add(new Dropdown.OptionData("AutoSave"));
+                    else load.options.Add(new Dropdown.OptionData(DataManager.Instance.DataReferences.initialID));
                 }
             }
         }

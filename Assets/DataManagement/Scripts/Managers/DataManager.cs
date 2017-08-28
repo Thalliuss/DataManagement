@@ -110,26 +110,25 @@ namespace DataManagement
             {
                 var _time = DateTime.Now.ToString();
 
-                _time = _time.Replace('/', '_');
+                _time = _time.Replace('/', '-');
                 _time = _time.Replace(' ', '_');
-                _time = _time.Replace(':', '_');
+                _time = _time.Replace(':', '-');
 
-
-                var _path = Application.persistentDataPath + "/" + _dataReferences.initialID;
-                if (Directory.Exists(_path + "/"))
+                var _path = Application.persistentDataPath + "/";
+                if (Directory.Exists(_path + _dataReferences.initialID + "/"))
                 {
-                    Directory.CreateDirectory(_path + "_" + _time);
+                    Directory.CreateDirectory(_path + _dataReferences.initialID + "_" + _time);
 
-                    for (int i = 0; i < Directory.GetFiles(_path).Length; i++)
-                        File.Copy(Directory.GetFiles(_path)[i], Directory.GetFiles(_path)[i].Replace(_dataReferences.initialID, _dataReferences.initialID + "_" + _time));
+                    for (int i = 0; i < Directory.GetFiles(_path + _dataReferences.ID).Length; i++)
+                        File.Copy(Directory.GetFiles(_path + _dataReferences.ID)[i], Directory.GetFiles(_path + _dataReferences.ID)[i].Replace(_dataReferences.ID, _dataReferences.initialID + "_" + _time));
                     
                     _saveReferences.Init();
+                    _dataReferences.ID = _dataReferences.initialID + "_" + _time;
                 }
             }
         }
 
-        public void Load() { StartCoroutine(PrepareLoad()); }
-        private IEnumerator PrepareLoad()
+        public void Load()
         {
             if (multipleSaves)
             {
@@ -146,8 +145,6 @@ namespace DataManagement
 
                 AssetDatabase.Refresh();
                 #endif
-
-                yield return new WaitForSeconds(.5f);
 
                 Build();
             }
