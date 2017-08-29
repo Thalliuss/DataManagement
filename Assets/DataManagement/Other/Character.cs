@@ -18,16 +18,16 @@ public class Character : DataElement
     }
     [SerializeField] private string _name;
 
-    public Character(string id, string name) : base(id)
+    public Character(string p_id, string p_name) : base(p_id)
     {
-        ID = id;
-        _name = name;
+        ID = p_id;
+        _name = p_name;
     }
 
     public void Select()
     {
-        var _characterManager = CharacterManager.Instance;
+        var t_characterManager = CharacterManager.Instance;
 
-        _characterManager.current = this;
+        t_characterManager.current = this;
     }
 }

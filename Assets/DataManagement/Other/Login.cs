@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class Login : MonoBehaviour
 {
     private DataManager _dataManager;
+    private DataReferences _dataReferences;
 
     [SerializeField] private InputField _username;
     [SerializeField] private InputField _password;
@@ -16,19 +17,19 @@ public class Login : MonoBehaviour
     private void Start()
     {
         _dataManager = DataManager.Instance;
+        _dataReferences = _dataManager.DataReferences;
     }
 
     public void OnLoginButtonClicked()
     {
-        var _dataReferences = _dataManager.DataReferences;
-        var _gameManager = GameManager.Instance;
+        var t_gameManager = GameManager.Instance;
 
         if (_dataReferences.FindElement<Account>(_username.text.ToUpper()) != null)
         {
-            var _account = _dataReferences.FindElement<Account>(_username.text.ToUpper());
-            if (_username.text == _account.Username && _password.text == _account.Password)
+            var t_account = _dataReferences.FindElement<Account>(_username.text.ToUpper());
+            if (_username.text == t_account.Username && _password.text == t_account.Password)
             {
-                _gameManager.CurrentAccount = _account;
+                t_gameManager.CurrentAccount = t_account;
                 SceneManager.LoadScene("Main");
             }
         }
@@ -37,8 +38,6 @@ public class Login : MonoBehaviour
 
     public void OnSignUpButtonClicked()
     {
-        var _dataReferences = _dataManager.DataReferences;
-
         if (_dataReferences.FindElement<Account>(_username.text.ToUpper()) == null)
             _dataReferences.AddElement<Account>(new Account(_username.text.ToUpper(), _username.text, _password.text));
         

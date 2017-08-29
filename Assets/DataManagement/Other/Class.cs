@@ -5,9 +5,9 @@ using UnityEngine;
 [CreateAssetMenu]
 public class Class : DataElement
 {
-    public Class(string id) : base(id)
+    public Class(string p_id) : base(p_id)
     {
-        ID = id;
+        ID = p_id;
     }
 
     public Sprite Icon

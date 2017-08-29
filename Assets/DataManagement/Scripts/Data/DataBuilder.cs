@@ -8,53 +8,51 @@ namespace DataManagement
 {
     public static class DataBuilder
     {
-        public static string Decrypt(string s)
+        public static string Decrypt(string p_input)
         {
             if (DataManager.Instance.encrypt)
             {
-                byte[] inputbuffer = System.Convert.FromBase64String(s);
-                byte[] outputBuffer = DES.Create().CreateDecryptor(DataReferences.key, DataReferences.iv).TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
-                return Encoding.Unicode.GetString(outputBuffer);
+                var t_inputbuffer = System.Convert.FromBase64String(p_input);
+                var t_outputBuffer = DES.Create().CreateDecryptor(DataReferences.key, DataReferences.iv).TransformFinalBlock(t_inputbuffer, 0, t_inputbuffer.Length);
+                return Encoding.Unicode.GetString(t_outputBuffer);
             }
-            else return s;
+            else return p_input;
         }
 
         public static void BuildDataReferences()
         {
-            var _dataManager = DataManager.Instance;
-            var _path = Application.persistentDataPath + "/" + _dataManager.DataReferences.ID + "/" + _dataManager.DataReferences.ID + ".json";
+            var t_dataManager = DataManager.Instance;
+            var t_path = Application.persistentDataPath + "/" + t_dataManager.DataReferences.ID + "/" + t_dataManager.DataReferences.ID + ".json";
 
-            Debug.Log(_path);
-
-            if (File.Exists(_path))
+            if (File.Exists(t_path))
             {
-                JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(_path)), _dataManager.DataReferences);
-                Debug.Log("Building Data from: " + Application.persistentDataPath + "/" + _dataManager.DataReferences.ID);
+                JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(t_path)), t_dataManager.DataReferences);
+                Debug.Log("Building Data from: " + Application.persistentDataPath + "/" + t_dataManager.DataReferences.ID);
             }
         }
 
-        public static void BuildElementsOfType<T>(DataReferences.SavedElement saveData) where T : DataElement
+        public static void BuildElementsOfType<T>(DataReferences.SavedElement p_saveData) where T : DataElement
         {
-            for (int i = 0; i < saveData.ids.Count; i++)
+            for (var i = 0; i < p_saveData.ids.Count; i++)
             {
-                if (saveData.types[i] == typeof(T).Name)
-                    BuildElementOfType<T>(saveData, i);
+                if (p_saveData.types[i] == typeof(T).Name)
+                    BuildElementOfType<T>(p_saveData, i);
 
-                saveData.info[i].Build<T>();
+                p_saveData.info[i].Build<T>();
             }
         }
 
-        public static void BuildElementOfType<T>(DataReferences.SavedElement saveData, int index) where T : DataElement
+        public static void BuildElementOfType<T>(DataReferences.SavedElement p_saveData, int p_index) where T : DataElement
         {
-            var _id = saveData.ids[index].ToString();
-            var _path = Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + _id + ".json";
+            var t_id = p_saveData.ids[p_index].ToString();
+            var t_path = Application.persistentDataPath + "/" + DataManager.Instance.DataReferences.ID + "/" + t_id + ".json";
 
-            if (File.Exists(_path))
+            if (File.Exists(t_path))
             {
-                var _element = DataParser.CreateAsset<T>(_id) as T;
-                JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(_path)), _element);
+                var t_element = DataParser.CreateAsset<T>(t_id) as T;
+                JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(t_path)), t_element);
 
-                saveData.info[index] = _element as T;
+                p_saveData.info[p_index] = t_element as T;
             }
         }
     }

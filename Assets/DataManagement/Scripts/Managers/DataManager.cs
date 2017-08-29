@@ -5,7 +5,6 @@ using UnityEngine;
 
 using System;
 using System.IO;
-using System.Collections;
 
 namespace DataManagement
 {
@@ -40,6 +39,14 @@ namespace DataManagement
         }
         [Header("Data."), SerializeField]
         private DataReferences _dataReferences;
+
+        public SaveReferences SaveReferences
+        {
+            get
+            {
+                return _saveReferences;
+            }
+        }
         [SerializeField] private SaveReferences _saveReferences;
 
         private void Awake()
@@ -47,9 +54,9 @@ namespace DataManagement
             DontDestroyOnLoad(this);
             _dataReferences.initialID = _dataReferences.ID;
 
-            var _path = Application.persistentDataPath + "/" + _dataReferences.ID + "/";
-            if (!Directory.Exists(_path))
-                Directory.CreateDirectory(_path);
+            var t_path = Application.persistentDataPath + "/" + _dataReferences.ID + "/";
+            if (!Directory.Exists(t_path))
+                Directory.CreateDirectory(t_path);
 
             if (_instance != null)
                 Destroy(gameObject);
@@ -60,13 +67,13 @@ namespace DataManagement
 
             if (!multipleSaves)
             {
-                if (_saveReferences.save != null)
-                    _saveReferences.save.gameObject.SetActive(false);
+                if (SaveReferences.save != null)
+                    SaveReferences.save.gameObject.SetActive(false);
 
-                if (_saveReferences.load != null)
-                    _saveReferences.load.gameObject.SetActive(false);
+                if (SaveReferences.load != null)
+                    SaveReferences.load.gameObject.SetActive(false);
             }
-            else _saveReferences.Init();
+            else SaveReferences.Init();
         }
 
         private void Build()
@@ -87,7 +94,7 @@ namespace DataManagement
 
         private void OnDestroy()
         {
-            for (int i = 0; i < _dataReferences.SaveData.info.Count; i++)
+            for (var i = 0; i < _dataReferences.SaveData.info.Count; i++)
                 _dataReferences.SaveData.info[i].Destroy();
 
             _dataReferences.SaveData.ids.Clear();
@@ -103,36 +110,44 @@ namespace DataManagement
             #endif
         }
 
-        [ContextMenu("Manual Save.")]
-        public void Save()
+        [ContextMenu("Manual New Save.")]
+        public void GenerateSave()
         {
             if (multipleSaves)
             {
-                var _time = DateTime.Now.ToString();
+                var t_time = DateTime.Now.ToString();
 
-                _time = _time.Replace('/', '-');
-                _time = _time.Replace(' ', '_');
-                _time = _time.Replace(':', '-');
+                t_time = t_time.Replace('/', '-');
+                t_time = t_time.Replace(' ', '_');
+                t_time = t_time.Replace(':', '-');
 
                 var _path = Application.persistentDataPath + "/";
                 if (Directory.Exists(_path + _dataReferences.initialID + "/"))
                 {
-                    Directory.CreateDirectory(_path + _dataReferences.initialID + "_" + _time);
+                    Directory.CreateDirectory(_path + _dataReferences.initialID + "_" + t_time);
 
-                    for (int i = 0; i < Directory.GetFiles(_path + _dataReferences.ID).Length; i++)
-                        File.Copy(Directory.GetFiles(_path + _dataReferences.ID)[i], Directory.GetFiles(_path + _dataReferences.ID)[i].Replace(_dataReferences.ID, _dataReferences.initialID + "_" + _time));
-                    
-                    _saveReferences.Init();
-                    _dataReferences.ID = _dataReferences.initialID + "_" + _time;
+                    for (var i = 0; i < Directory.GetFiles(_path + _dataReferences.ID).Length; i++)
+                        File.Copy(Directory.GetFiles(_path + _dataReferences.ID)[i], Directory.GetFiles(_path + _dataReferences.ID)[i].Replace(_dataReferences.ID, _dataReferences.initialID + "_" + t_time));
+
+                    Debug.Log("Saving Data to: " + _path + _dataReferences.initialID + "_" + t_time);
+
+                    SaveReferences.Init();
+                    _dataReferences.ID = _dataReferences.initialID + "_" + t_time;
                 }
             }
+        }
+        [ContextMenu("Manual Override.")]
+        public void OverrideSave()
+        {
+            if (multipleSaves)
+                _dataReferences.Save();
         }
 
         public void Load()
         {
             if (multipleSaves)
             {
-                _dataReferences.ID = _saveReferences.saveData[_saveReferences.load.value];
+                _dataReferences.ID = SaveReferences.saveData[SaveReferences.load.value];
                 _dataReferences.Save();
 
                 _dataReferences.SaveData.ids.Clear();
@@ -150,20 +165,20 @@ namespace DataManagement
             }
         }
 
-        [ContextMenu("Clear Data.")]
-        public void ClearData()
+        [ContextMenu("Clear All Data.")]
+        public void ClearAllData()
         {
-            var _path = Application.persistentDataPath + "/";
-            var _data = Directory.GetDirectories(_path);
-            for (int i = 0; i < _data.Length; i++)
+            var t_path = Application.persistentDataPath + "/";
+            var t_data = Directory.GetDirectories(t_path);
+            for (var i = 0; i < t_data.Length; i++)
             {
-                if (_data[i].Contains(_dataReferences.ID))
+                if (t_data[i].Contains(_dataReferences.ID))
                 {
                     #if UNITY_EDITOR
-                    if (Directory.Exists(_data[i]))
+                    if (Directory.Exists(t_data[i]))
                     {
-                        FileUtil.DeleteFileOrDirectory(_data[i]);
-                        Debug.Log("Succesfully cleaned all saved data...");
+                        FileUtil.DeleteFileOrDirectory(t_data[i]);
+                        Debug.Log("Cleaning Data from: " + t_data[i]);
                     }
                     AssetDatabase.Refresh();
                     #endif

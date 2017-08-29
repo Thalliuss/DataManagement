@@ -2,7 +2,6 @@
 
 using UnityEngine;
 
-
 public class Account : DataElement
 {
     public string Username
@@ -23,10 +22,10 @@ public class Account : DataElement
     }
     [SerializeField] private string _password;
 
-    public Account(string id, string username, string password) : base(id)
+    public Account(string p_id, string p_username, string p_password) : base(p_id)
     {
-        ID = id;
-        _username = username;
-        _password = password;
+        ID = p_id;
+        _username = p_username;
+        _password = p_password;
     }
 }

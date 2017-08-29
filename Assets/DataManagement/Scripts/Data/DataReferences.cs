@@ -1,7 +1,7 @@
+using UnityEngine;
+
 using System;
 using System.Collections.Generic;
-
-using UnityEngine;
 
 namespace DataManagement
 {
@@ -10,30 +10,30 @@ namespace DataManagement
     {
         public List<T> FindDataOfType<T>() where T : DataElement
         {
-            var _temp = new List<T>();
-            for (int i = 0; i < _data.Count; i++)
+            var t_temp = new List<T>();
+            for (var i = 0; i < _data.Count; i++)
             {
                 if (_data[i].GetType() == typeof(T))
-                    _temp.Add(_data[i] as T);
+                    t_temp.Add(_data[i] as T);
             }
-            _temp.Reverse();
-            return _temp;
+            t_temp.Reverse();
+            return t_temp;
         }
 
-        public T FindDataElement<T>(string id) where T : DataElement
+        public T FindDataElement<T>(string p_id) where T : DataElement
         {
-            for (int i = 0; i < _data.Count; i++)
+            for (var i = 0; i < _data.Count; i++)
             {
-                if (_data[i].ID == id)
+                if (_data[i].ID == p_id)
                     return _data[i] as T;
             }
             return null;
         }
 
-        public T FindDataElement<T>(int index) where T : DataElement
+        public T FindDataElement<T>(int p_index) where T : DataElement
         {
-            if (_data[index].GetType() == typeof(T))
-                return _data[index] as T;
+            if (_data[p_index].GetType() == typeof(T))
+                return _data[p_index] as T;
 
             return null;
         }
@@ -54,9 +54,9 @@ namespace DataManagement
             public List<DataElement> info = new List<DataElement>();
         }
 
-        public DataReferences(string id) : base(id)
+        public DataReferences(string p_id) : base(p_id)
         {
-            ID = id;
+            ID = p_id;
         }
     }
 }

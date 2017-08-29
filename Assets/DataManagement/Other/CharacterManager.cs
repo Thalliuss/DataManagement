@@ -22,6 +22,7 @@ public class CharacterManager : MonoBehaviour
     }
 
     private DataManager _dataManager;
+    private GameManager _gameManager;
 
     [Header("Characters."), SerializeField]
     private List<Character> _characters = new List<Character>();
@@ -54,16 +55,17 @@ public class CharacterManager : MonoBehaviour
     {
         Init();
     }
+
     private void Init()
     {
         _dataManager = DataManager.Instance;
-        var _gameManager = GameManager.Instance;
+        _gameManager = GameManager.Instance;
 
         if (_gameManager.CurrentAccount.SaveData.ids.Count == 0) return;
 
         _characters.Clear();
 
-        for (int i = 0; i < _gameManager.CurrentAccount.SaveData.ids.Count; i++)
+        for (var i = 0; i < _gameManager.CurrentAccount.SaveData.ids.Count; i++)
             _characters.Add(_gameManager.CurrentAccount.FindElement<Character>(i));
 
         current = _characters[0];
@@ -77,10 +79,10 @@ public class CharacterManager : MonoBehaviour
 
     }
 
-    public Character GetCharacter(int id)
+    public Character GetCharacter(int p_id)
     {
-        if (id <= _characters.Count)
-            return _characters[id];
+        if (p_id <= _characters.Count)
+            return _characters[p_id];
 
         return null;
     }
@@ -112,18 +114,19 @@ public class CharacterManager : MonoBehaviour
 
     public void Create()
     {
-        var _gameManager = GameManager.Instance;
+        _gameManager = GameManager.Instance;
+
         _characterField.SetActive(false);
         _createField.SetActive(true);
 
-        for (int i = 0; i < _dataManager.DataReferences.SaveData.ids.Count; i++)
+        for (var i = 0; i < _dataManager.DataReferences.SaveData.ids.Count; i++)
         {
             if (_inputName.text != "" && _dataManager.DataReferences.FindElement<Character>(_inputName.text.ToUpper()) == null)
             {
                 _dataManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).AddElement<Character>(new Character(_inputName.text.ToUpper(), _inputName.text));
 
-                var _character = _dataManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).FindElement<Character>(_inputName.text.ToUpper());
-                _character.AddElement<Class>(_dataManager.DataReferences.FindDataElement<Class>(_classSelect.value));
+                var t_character = _dataManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).FindElement<Character>(_inputName.text.ToUpper());
+                t_character.AddElement<Class>(_dataManager.DataReferences.FindDataElement<Class>(_classSelect.value));
 
                 _characterField.SetActive(true);
                 _createField.SetActive(false);
