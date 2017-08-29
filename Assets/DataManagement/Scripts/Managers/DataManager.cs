@@ -148,7 +148,6 @@ namespace DataManagement
             if (multipleSaves)
             {
                 _dataReferences.ID = SaveReferences.saveData[SaveReferences.load.value];
-                _dataReferences.Save();
 
                 _dataReferences.SaveData.ids.Clear();
                 _dataReferences.SaveData.info.Clear();
