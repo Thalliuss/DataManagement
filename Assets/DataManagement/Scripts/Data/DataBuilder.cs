@@ -38,7 +38,8 @@ namespace DataManagement
                 if (p_saveData.types[i] == typeof(T).Name)
                     BuildElementOfType<T>(p_saveData, i);
 
-                p_saveData.info[i].Build<T>();
+                if (p_saveData.info[i] != null)
+                    p_saveData.info[i].Build<T>();
             }
         }
 

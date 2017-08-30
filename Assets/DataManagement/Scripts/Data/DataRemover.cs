@@ -3,6 +3,8 @@
 using UnityEditor;
 #endif
 
+using System.IO;
+
 namespace DataManagement
 {
     public class DataRemover : MonoBehaviour
@@ -19,7 +21,7 @@ namespace DataManagement
                     var t_value = (int)char.GetNumericValue(t_parent.name.ToCharArray()[i]);
 
                     Debug.Log("Cleaning Data from: " + Application.persistentDataPath + "/" + t_dataManager.SaveReferences.saveData[t_value]);
-                    FileUtil.DeleteFileOrDirectory(Application.persistentDataPath + "/" + t_dataManager.SaveReferences.saveData[t_value]);
+                    Directory.Delete(Application.persistentDataPath + "/" + t_dataManager.SaveReferences.saveData[t_value], true);
 
                     if (t_dataManager.DataReferences.ID == t_dataManager.SaveReferences.saveData[t_value])
                         t_dataManager.DataReferences.ID = t_dataManager.DataReferences.initialID;

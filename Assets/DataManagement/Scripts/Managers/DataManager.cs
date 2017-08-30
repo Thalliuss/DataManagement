@@ -94,9 +94,6 @@ namespace DataManagement
 
         private void OnDestroy()
         {
-            for (var i = 0; i < _dataReferences.SaveData.info.Count; i++)
-                _dataReferences.SaveData.info[i].Destroy();
-
             _dataReferences.SaveData.ids.Clear();
             _dataReferences.SaveData.info.Clear();
             _dataReferences.SaveData.types.Clear();
@@ -137,11 +134,7 @@ namespace DataManagement
             }
         }
         [ContextMenu("Manual Override.")]
-        public void OverrideSave()
-        {
-            if (multipleSaves)
-                _dataReferences.Save();
-        }
+        public void OverrideSave() { _dataReferences.Save(); }
 
         public void Load()
         {
