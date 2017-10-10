@@ -130,6 +130,7 @@ namespace DataManagement
 
                     SaveReferences.Init();
                     _dataReferences.ID = _dataReferences.initialID + "_" + t_time;
+                    _dataReferences.Save();
                 }
             }
         }
@@ -179,9 +180,6 @@ namespace DataManagement
         }
 
         [ContextMenu("Clear PlayerPrefs.")]
-        public void ClearPlayerPrefs()
-        {
-            PlayerPrefs.DeleteAll();
-        }
+        public void ClearPlayerPrefs() { PlayerPrefs.DeleteAll(); }
     }
 }
