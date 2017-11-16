@@ -19,20 +19,20 @@ namespace DataManagement
             if (saveData != null) saveData.Clear();
             if (load.options != null) load.options.Clear();
 
-            var t_path = Application.persistentDataPath + "/";
-            var t_data = Directory.GetDirectories(t_path);
-            for (int i = 0; i < t_data.Length; i++)
+            string t_path = Application.persistentDataPath + "/";
+            string[] t_data = Directory.GetDirectories(t_path);
+            for (uint i = 0; i < t_data.Length; i++)
             {
                 t_data[i] = t_data[i].Replace(t_path, "");
 
-                if (t_data[i].Contains(DataManager.Instance.DataReferences.initialID))
+                if (!t_data[i].Contains("Unity") && !t_data[i].Contains("temp"))
                 {
                     saveData.Add(t_data[i]);
 
-                    if (t_data[i] != DataManager.Instance.DataReferences.initialID)
+                    if (t_data[i] != DataManager.Instance.ID)
                         load.options.Add(new Dropdown.OptionData(t_data[i]));
                     
-                    else load.options.Add(new Dropdown.OptionData(DataManager.Instance.DataReferences.initialID));
+                    else load.options.Add(new Dropdown.OptionData(DataManager.Instance.ID));
                 }
             }
         }

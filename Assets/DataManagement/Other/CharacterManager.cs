@@ -21,7 +21,7 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
-    private DataManager _dataManager;
+    private SceneManager _sceneManager;
     private GameManager _gameManager;
 
     [Header("Characters."), SerializeField]
@@ -58,7 +58,7 @@ public class CharacterManager : MonoBehaviour
 
     private void Init()
     {
-        _dataManager = DataManager.Instance;
+        _sceneManager = SceneManager.Instance;
         _gameManager = GameManager.Instance;
 
         if (_gameManager.CurrentAccount.SaveData.ids.Count == 0) return;
@@ -119,14 +119,23 @@ public class CharacterManager : MonoBehaviour
         _characterField.SetActive(false);
         _createField.SetActive(true);
 
-        for (var i = 0; i < _dataManager.DataReferences.SaveData.ids.Count; i++)
+        for (var i = 0; i < _sceneManager.DataReferences.SaveData.ids.Count; i++)
         {
-            if (_inputName.text != "" && _dataManager.DataReferences.FindElement<Character>(_inputName.text.ToUpper()) == null)
+            if (_inputName.text != "" && _sceneManager.DataReferences.FindElement<Character>(_inputName.text.ToUpper()) == null)
             {
-                _dataManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).AddElement<Character>(new Character(_inputName.text.ToUpper(), _inputName.text));
+                _sceneManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).AddElement<Character>(_inputName.text.ToUpper());
 
-                var t_character = _dataManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).FindElement<Character>(_inputName.text.ToUpper());
-                t_character.AddElement<Class>(_dataManager.DataReferences.FindDataElement<Class>(_classSelect.value));
+                var t_character = _sceneManager.DataReferences.FindElement<Account>(_gameManager.CurrentAccount.ID).FindElement<Character>(_inputName.text.ToUpper());
+                t_character.Name = _inputName.text;
+
+                t_character.AddElement<Class>(_sceneManager.DataReferences.FindDataElement<Class>(_classSelect.value).ID);
+
+                var t_class = t_character.FindElement<Class>(_sceneManager.DataReferences.FindDataElement<Class>(_classSelect.value).ID);
+                t_class.Icon = _sceneManager.DataReferences.FindDataElement<Class>(_classSelect.value).Icon;
+                t_class.Save();
+
+                t_character.Save();
+
 
                 _characterField.SetActive(true);
                 _createField.SetActive(false);

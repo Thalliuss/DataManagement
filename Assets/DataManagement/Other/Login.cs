@@ -3,12 +3,11 @@
 using System.Collections;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Login : MonoBehaviour
 {
-    private DataManager _dataManager;
+    private SceneManager _sceneManager;
     private DataReferences _dataReferences;
 
     [SerializeField] private InputField _username;
@@ -16,8 +15,8 @@ public class Login : MonoBehaviour
 
     private void Start()
     {
-        _dataManager = DataManager.Instance;
-        _dataReferences = _dataManager.DataReferences;
+        _sceneManager = SceneManager.Instance;
+        _dataReferences = _sceneManager.DataReferences;
     }
 
     public void OnLoginButtonClicked()
@@ -30,7 +29,7 @@ public class Login : MonoBehaviour
             if (_username.text == t_account.Username && _password.text == t_account.Password)
             {
                 t_gameManager.CurrentAccount = t_account;
-                SceneManager.LoadScene("Main");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
             }
         }
         else StartCoroutine(Error());
@@ -38,9 +37,16 @@ public class Login : MonoBehaviour
 
     public void OnSignUpButtonClicked()
     {
-        if (_dataReferences.FindElement<Account>(_username.text.ToUpper()) == null)
-            _dataReferences.AddElement<Account>(new Account(_username.text.ToUpper(), _username.text, _password.text));
-        
+        Account t_account = _dataReferences.FindElement<Account>(_username.text.ToUpper());
+        if (t_account == null)
+        {
+            _dataReferences.AddElement<Account>(_username.text.ToUpper());
+            t_account = _dataReferences.FindElement<Account>(_username.text.ToUpper());
+
+            t_account.Username = _username.text;
+            t_account.Password = _password.text;
+            t_account.Save();
+        }
         else StartCoroutine(Error());
     }
 

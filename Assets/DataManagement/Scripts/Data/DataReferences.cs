@@ -10,8 +10,8 @@ namespace DataManagement
     {
         public List<T> FindDataOfType<T>() where T : DataElement
         {
-            var t_temp = new List<T>();
-            for (var i = 0; i < _data.Count; i++)
+            List<T> t_temp = new List<T>();
+            for (int i = 0; i < _data.Count; i++)
             {
                 if (_data[i].GetType() == typeof(T))
                     t_temp.Add(_data[i] as T);
@@ -22,7 +22,7 @@ namespace DataManagement
 
         public T FindDataElement<T>(string p_id) where T : DataElement
         {
-            for (var i = 0; i < _data.Count; i++)
+            for (int i = 0; i < _data.Count; i++)
             {
                 if (_data[i].ID == p_id)
                     return _data[i] as T;
@@ -43,8 +43,6 @@ namespace DataManagement
 
         public static byte[] key = new byte[8] { 14, 43, 26, 54, 78, 107, 31, 65 };
         public static byte[] iv = new byte[8] { 10, 28, 20, 35, 88, 11, 7, 107 };
-
-        [HideInInspector] public string initialID;
 
         [Serializable]
         public class SavedElement
