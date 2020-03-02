@@ -1,11 +1,18 @@
-﻿using UnityEngine;
-
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEngine;
 
 namespace DataManagement
 {
+    /// <copyright file="DataBuilder.cs">
+    /// Copyright (c) 2019 All Rights Reserved
+    /// </copyright>
+    /// <author>Kevin Hummel</author>
+    /// <date>18/03/2019 21:41 PM </date>
+    /// <summary>
+    /// This class handles getting all saved data from disk and adding it back into Unity.
+    /// </summary>
     public static class DataBuilder
     {
         public static string Decrypt(string p_input)
@@ -25,10 +32,7 @@ namespace DataManagement
             string t_path = Application.persistentDataPath + "/" + DataManager.Instance.ID + "/" + t_sceneManager.DataReferences.ID + "/" + t_sceneManager.DataReferences.ID + ".json";
 
             if (File.Exists(t_path))
-            {
                 JsonUtility.FromJsonOverwrite(Decrypt(File.ReadAllText(t_path)), t_sceneManager.DataReferences);
-                Debug.Log("Building Data from: " + t_path);
-            }
         }
 
         public static void BuildElementsOfType<T>(DataReferences.SavedElement p_saveData) where T : DataElement
@@ -37,9 +41,6 @@ namespace DataManagement
             {
                 if (p_saveData.types[i] == typeof(T).Name)
                     BuildElementOfType<T>(p_saveData, i);
-
-                if (p_saveData.info[i] != null)
-                    p_saveData.info[i].Build<T>();
             }
         }
 

@@ -1,10 +1,18 @@
-﻿using UnityEngine;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Security.Cryptography;
+using System.Text;
+using UnityEngine;
 
 namespace DataManagement
 {
+    /// <copyright file="DataParser.cs">
+    /// Copyright (c) 2019 All Rights Reserved
+    /// </copyright>
+    /// <author>Kevin Hummel</author>
+    /// <date>18/03/2019 21:41 PM </date>
+    /// <summary>
+    /// This class handles getting the data in Unity and saving it too disk.
+    /// </summary>
     public static class DataParser
     {
         public static string Encrypt(string p_input)

@@ -1,45 +1,38 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <copyright file="LoadingscreenManager.cs">
+/// Copyright (c) 2019 All Rights Reserved
+/// </copyright>
+/// <author>Kevin Hummel</author>
+/// <date>18/03/2019 21:41 PM </date>
+/// <summary>
+/// This class is needed if data is too heavy too load and a loadingscreen is needed.
+/// </summary>
 public class LoadingscreenManager : MonoBehaviour
 {
-    private static LoadingscreenManager _instance;
-    public static LoadingscreenManager Instance
+    public static LoadingscreenManager Instance { get; set; }
+    public bool IsLoading { get; set; }
+    public bool IsSetupScene
     {
         get
         {
-            return _instance;
-        }
+            if (SceneManager.GetActiveScene().buildIndex == 0) {
+                return true;
+            } else return false;
 
-        set
-        {
-            _instance = value;
         }
     }
 
-    public bool IsLoading
-    {
-        get
-        {
-            return _isLoading;
-        }
-
-        set
-        {
-            _isLoading = value;
-        }
-    }
-    private bool _isLoading = false;
-
-    [SerializeField] private bool _loadOnStart;
-    [SerializeField] private string _levelToLoad;
+    [SerializeField] private bool _loadOnStart = false;
+    [SerializeField] private string _levelToLoad = null;
 
     private void Awake()
     {
-        if (_instance != null)
+        if (Instance != null)
             Destroy(gameObject);
 
-        _instance = this;
+        Instance = this;
 
         DontDestroyOnLoad(this);
     }
@@ -47,6 +40,11 @@ public class LoadingscreenManager : MonoBehaviour
     private void Start()
     {
         if (_loadOnStart) LoadScene(_levelToLoad);
+    }
+
+    private void Update()
+    {
+        GetComponent<Canvas>().worldCamera = Camera.main;
     }
 
     public void LoadScene(string p_input)
@@ -59,9 +57,13 @@ public class LoadingscreenManager : MonoBehaviour
         UIManager t_uiManager = UIManager.Instance;
 
         t_uiManager.OpenLoading(p_text);
-        _isLoading = true;
+        IsLoading = true;
 
+        t_uiManager.LoadingBar.maxValue = p_max;
         t_uiManager.LoadingBar.value = p_current / p_max;
+
+        if (t_uiManager.LoadingBar.value == p_max)
+            CloseLoadingscreen();
     }
 
     public void CloseLoadingscreen()
@@ -69,7 +71,7 @@ public class LoadingscreenManager : MonoBehaviour
         UIManager t_uiManager = UIManager.Instance;
 
         t_uiManager.CloseLoading();
-        _isLoading = false;
+        IsLoading = false;
     }
 }
 

@@ -1,102 +1,36 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
+/// <copyright file="UIManager.cs">
+/// Copyright (c) 2019 All Rights Reserved
+/// </copyright>
+/// <author>Kevin Hummel</author>
+/// <date>18/03/2019 21:41 PM </date>
+/// <summary>
+/// This class handles opening the save and load menu.
+/// It also handles initializing the loadingscreen on screen.
+/// </summary>
 public class UIManager : MonoBehaviour
 {
-    public static UIManager Instance
-    {
-        get
-        {
-            return _instance;
-        }
+    public static UIManager Instance { get; set; }
 
-        set
-        {
-            _instance = value;
-        }
-    }
+    [SerializeField] private GameObject _menu = null;
+    [SerializeField] private GameObject _loading = null;
+    [SerializeField] private Text _loadingText = null;
 
-    private static UIManager _instance;
-
-    public bool MenuOpened
-    {
-        get
-        {
-            return _menuOpened;
-        }
-
-        set
-        {
-            _menuOpened = value;
-        }
-    }
+    [SerializeField] private Slider _loadingBar = null;
+    public Slider LoadingBar => _loadingBar;
 
     private bool _menuOpened = false;
 
-    [SerializeField]
-    private GameObject _menu;
-    [SerializeField]
-    private GameObject _loading;
-    [SerializeField]
-    private GameObject _commands;
-
-    [SerializeField]
-    private Text _loadingText;
-
-    public Slider LoadingBar
-    {
-        get
-        {
-            return _loadingBar;
-        }
-
-        set
-        {
-            _loadingBar = value;
-        }
-    }
-
-    [SerializeField]
-    private Slider _loadingBar;
-
-    public bool CommandsOpened
-    {
-        get
-        {
-            return _commandsOpened;
-        }
-
-        set
-        {
-            _commandsOpened = value;
-        }
-    }
-    private bool _commandsOpened = false;
-
     private void Awake()
     {
-        if (_instance != null)
+        if (Instance != null)
             Destroy(gameObject);
 
-        _instance = this;
+        Instance = this;
 
         DontDestroyOnLoad(this);
-    }
-
-    public void LockCursor(bool p_input)
-    {
-        if (p_input)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
     }
 
     public void SetTimeScale(int p_input)
@@ -106,34 +40,15 @@ public class UIManager : MonoBehaviour
 
     private void OpenMenu()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !LoadingscreenManager.Instance.IsLoading)
+        if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene)
         {
             _menuOpened = !_menuOpened;
             _menu.SetActive(_menuOpened);
-
-            if (_menuOpened == true)
-            {
-                SetTimeScale(0);
-            }
-            else
-            {
-                SetTimeScale(1);
-            }
-        }
-    }
-
-    private void OpenPrompt()
-    {
-        if (Input.GetKeyDown(KeyCode.P) && !LoadingscreenManager.Instance.IsLoading)
-        {
-            _commandsOpened = !_commandsOpened;
-            _commands.SetActive(_commandsOpened);
         }
     }
 
     public void CloseMenu()
     {
-        LockCursor(true);
         _menu.SetActive(false);
         _menuOpened = false;
     }
@@ -150,11 +65,6 @@ public class UIManager : MonoBehaviour
         _loadingText.text = "";
     }
 
-    public void ClosePrompt()
-    {
-        _commands.SetActive(false);
-    }
-
     public void QuitApplication()
     {
         Application.Quit();
@@ -163,6 +73,5 @@ public class UIManager : MonoBehaviour
     public void Update()
     {
         OpenMenu();
-        OpenPrompt();
     }
 }

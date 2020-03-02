@@ -1,49 +1,34 @@
 ﻿using UnityEngine;
-using DataManagement;
 using System.IO;
+
+
 
 namespace DataManagement
 {
+    /// <copyright file="SceneManager.cs">
+    /// Copyright (c) 2019 All Rights Reserved
+    /// </copyright>
+    /// <author>Kevin Hummel</author>
+    /// <date>18/03/2019 21:41 PM </date>
+    /// <summary>
+    /// This class handles a scene and load data from the corresponding scene into the DataReferences.
+    /// When making a new scene where data needs too be saved and loaded make sure this class is added into the hierarchy.
+    /// </summary>
     public class SceneManager : MonoBehaviour
     {
-        private static SceneManager _instance;
-        public static SceneManager Instance
-        {
-            get
-            {
-                return _instance;
-            }
+        public static SceneManager Instance { get; set; }
 
-            set
-            {
-                _instance = value;
-            }
-        }
+        [SerializeField] private string _sceneID = null;
 
-        [SerializeField]
-        private string _sceneID;
-
-        public DataReferences DataReferences
-        {
-            get
-            {
-                return _dataReferences;
-            }
-
-            set
-            {
-                _dataReferences = value;
-            }
-        }
-        [SerializeField]
-        private DataReferences _dataReferences;
+        public DataReferences DataReferences => _dataReferences;
+        [SerializeField] private DataReferences _dataReferences = null;
 
         private void Awake()
         {
-            if (_instance != null)
+            if (Instance != null)
                 Destroy(gameObject);
 
-            _instance = this;
+            Instance = this;
 
             if (DataManager.Instance == null) return;
 
@@ -56,9 +41,19 @@ namespace DataManagement
             Build();
         }
 
+        public void Reload()
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+        }
+
         private void OnDestroy()
         {
             ClearAllData();
+        }
+
+        public void ManualSave(string p_input)
+        {
+            DataManager.Instance.OverideSave(p_input);
         }
 
         public void ClearAllData()
@@ -72,6 +67,11 @@ namespace DataManagement
         {
             DataManager t_dataManager = DataManager.Instance;
             if (t_dataManager != null) t_dataManager.Build();
+        }
+
+        public void LoadScene(string p_input) 
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(p_input);
         }
     }
 }
