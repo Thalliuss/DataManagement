@@ -1,194 +1,234 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine;
-
 using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
+using UnityEngine;
 
 namespace DataManagement
 {
+    /// <copyright file="DataManager.cs">
+    /// Copyright (c) 2019 All Rights Reserved
+    /// </copyright>
+    /// <author>Kevin Hummel</author>
+    /// <date>18/03/2019 21:41 PM </date>
+    /// <summary>
+    /// This class is the brain behind it all and handles building all saved data back into Unity on loading into a scene.
+    /// </summary>
     public class DataManager : MonoBehaviour
     {
-        private static DataManager _instance;
-        public static DataManager Instance
-        {
-            get
-            {
-                return _instance;
-            }
-
-            set
-            {
-                _instance = value;
-            }
-        }
+        public static DataManager Instance { get; set; }
+        public string ID { get => _id; set => _id = value; }
+        [SerializeField] private string _id;
 
         [Header("Enable/Disable Encryption.")]
-        public bool encrypt;
+        public bool encrypt = false;
 
         [Header("Enable/Disable Multiple Save Files."), SerializeField]
-        private bool multipleSaves;
+        public bool multipleSaves = false;
 
-        public DataReferences DataReferences
-        {
-            get
-            {
-                return _dataReferences;
-            }
-        }
-        [Header("Data."), SerializeField]
-        private DataReferences _dataReferences;
+        public SaveReferences SaveReferences => _saveReferences;
 
-        public SaveReferences SaveReferences
-        {
-            get
-            {
-                return _saveReferences;
-            }
-        }
-        [SerializeField] private SaveReferences _saveReferences;
+
+        [SerializeField] private SaveReferences _saveReferences = null;
+
+        public string TempID { get => _tempID; }
+        private const string _tempID = "temp";
 
         private void Awake()
         {
             DontDestroyOnLoad(this);
-            _dataReferences.initialID = _dataReferences.ID;
+            ID = (CheckForLastFile() ?? TempID);
 
-            var t_path = Application.persistentDataPath + "/" + _dataReferences.ID + "/";
+            string t_path = Application.persistentDataPath + "/" + ID + "/";
             if (!Directory.Exists(t_path))
                 Directory.CreateDirectory(t_path);
 
-            if (_instance != null)
+            if (Instance != null)
                 Destroy(gameObject);
 
-            _instance = this;
-
-            Build();
+            Instance = this;
 
             if (!multipleSaves)
             {
-                if (SaveReferences.save != null)
-                    SaveReferences.save.gameObject.SetActive(false);
+                if (_saveReferences.generateSave != null)
+                    _saveReferences.generateSave.gameObject.SetActive(false);
 
-                if (SaveReferences.load != null)
-                    SaveReferences.load.gameObject.SetActive(false);
+
+                if (_saveReferences.load != null)
+                    _saveReferences.load.gameObject.transform.parent.parent.gameObject.SetActive(false);
             }
-            else SaveReferences.Init();
+            else
+            {
+                SaveReferences.Init();
+            }
+
+            Debug.Log(Application.persistentDataPath + "/");
         }
 
-        private void Build()
+        private string CheckForLastFile()
         {
-            #if UNITY_EDITOR
-            if (!Directory.Exists("Assets/Temp_Assets/"))
-                Directory.CreateDirectory("Assets/Temp_Assets/");
+            string t_path = Application.persistentDataPath + "/";
 
-            AssetDatabase.Refresh();
-            #endif
+            var t_root = new DirectoryInfo(t_path);
+            var t_dir = t_root.GetDirectories().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+
+            if (!multipleSaves) return "Autosave";
+            if (t_dir.Name != "Unity") return t_dir.Name;
+            else return null;
+        }
+        
+        // Add DataElement children down here too make sure they are correctly loaded in on loading a scene.
+        public void Build()
+        {
+            SceneManager t_sceneManager = SceneManager.Instance;
 
             DataBuilder.BuildDataReferences();
 
-            DataBuilder.BuildElementsOfType<Account>(_dataReferences.SaveData);
-            DataBuilder.BuildElementsOfType<Character>(_dataReferences.SaveData);
-            DataBuilder.BuildElementsOfType<Class>(_dataReferences.SaveData);
+            //Build data down here 
+
+		    DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
+
+            StartCoroutine(Reset());
         }
 
-        private void OnDestroy()
+        public void Save()
         {
-            for (var i = 0; i < _dataReferences.SaveData.info.Count; i++)
-                _dataReferences.SaveData.info[i].Destroy();
+            SceneManager t_sceneManager = SceneManager.Instance;
 
-            _dataReferences.SaveData.ids.Clear();
-            _dataReferences.SaveData.info.Clear();
-            _dataReferences.SaveData.types.Clear();
-            _dataReferences.ID = _dataReferences.initialID;
+            string t_time = DateTime.Now.ToString();
 
-            #if UNITY_EDITOR
-            if (Directory.Exists("Assets/Temp_Assets/"))
-                FileUtil.DeleteFileOrDirectory("Assets/Temp_Assets/");
+            t_time = t_time.Replace("/", "-");
+            t_time = t_time.Replace(" ", "_");
+            t_time = t_time.Replace(":", "-");
 
-            AssetDatabase.Refresh();
-            #endif
-        }
-
-        [ContextMenu("Manual New Save.")]
-        public void GenerateSave()
-        {
-            if (multipleSaves)
+            string _path = Application.persistentDataPath + "/";
+            if (Directory.Exists(_path + ID + "/"))
             {
-                var t_time = DateTime.Now.ToString();
+                string t_temp = _path + (ID == TempID || ID == "Autosave" ? "SAVE" : ID);
 
-                t_time = t_time.Replace('/', '-');
-                t_time = t_time.Replace(' ', '_');
-                t_time = t_time.Replace(':', '-');
+                t_temp = t_temp.Replace(_path, "");
+                t_temp = t_temp.Replace("-", "");
+                t_temp = t_temp.Replace("_", "");
+                t_temp = t_temp.Replace(":", "");
+                t_temp = t_temp.Replace("PM", "");
+                t_temp = t_temp.Replace("AM", "");
 
-                var _path = Application.persistentDataPath + "/";
-                if (Directory.Exists(_path + _dataReferences.initialID + "/"))
+                for (int i = 0; i < t_temp.Length; i++)
                 {
-                    Directory.CreateDirectory(_path + _dataReferences.initialID + "_" + t_time);
-
-                    for (var i = 0; i < Directory.GetFiles(_path + _dataReferences.ID).Length; i++)
-                        File.Copy(Directory.GetFiles(_path + _dataReferences.ID)[i], Directory.GetFiles(_path + _dataReferences.ID)[i].Replace(_dataReferences.ID, _dataReferences.initialID + "_" + t_time));
-
-                    Debug.Log("Saving Data to: " + _path + _dataReferences.initialID + "_" + t_time);
-
-                    SaveReferences.Init();
-                    _dataReferences.ID = _dataReferences.initialID + "_" + t_time;
+                    if (char.IsDigit(t_temp[i]))
+                        t_temp = t_temp.Replace(t_temp[i], ' ');
                 }
+                t_temp = t_temp.TrimEnd();
+
+                string t_newPath = t_temp + "_" + t_time;
+                t_newPath = t_newPath.Replace(" ", "_");
+
+                Directory.CreateDirectory(_path + t_newPath);
+
+                for (uint i = 0; i < Directory.GetDirectories(_path + ID).Length; i++)
+                {
+                    string t_name = Directory.GetDirectories(_path + ID)[i];
+                    Directory.CreateDirectory(t_name.Replace(ID, t_newPath));
+
+                    for (uint a = 0; a < Directory.GetFiles(t_name).Length; a++)
+                        File.Copy(Directory.GetFiles(t_name)[a], Directory.GetFiles(t_name)[a].Replace(ID, t_newPath));
+                }
+
+                Debug.Log("Saving Data to: " + t_newPath);
+
+                ID = t_newPath;
+                SaveReferences.Init();
+
+                for (int i = 0; i < t_sceneManager.DataReferences.SaveData.info.Count; i++)
+                    t_sceneManager.DataReferences.SaveData.info[i].Save();
+
+                StartCoroutine(Reset());
             }
         }
-        [ContextMenu("Manual Override.")]
-        public void OverrideSave()
+        public void OverideSave(string p_input = null)
         {
-            if (multipleSaves)
-                _dataReferences.Save();
+            SceneManager t_sceneManager = SceneManager.Instance;
+            if (t_sceneManager != null)
+            {
+                if (p_input != null && p_input != "")  {
+                    ID = p_input;
+                } else ID = SaveReferences.saveData[SaveReferences.overrideSave.value];
+
+                SaveReferences.Init();
+                Debug.Log("Saving Data to: " + ID);
+
+                for (int i = 0; i < t_sceneManager.DataReferences.SaveData.info.Count; i++)
+                    t_sceneManager.DataReferences.SaveData.info[i].Save();
+            }
+
+            StartCoroutine(Reset());
         }
 
         public void Load()
         {
-            if (multipleSaves)
-            {
-                _dataReferences.ID = SaveReferences.saveData[SaveReferences.load.value];
+            ID = SaveReferences.saveData[SaveReferences.load.value];
+            Debug.Log(ID + "DEBUGGING");
 
-                _dataReferences.SaveData.ids.Clear();
-                _dataReferences.SaveData.info.Clear();
-                _dataReferences.SaveData.types.Clear();
-
-                #if UNITY_EDITOR
-                if (Directory.Exists("Assets/Temp_Assets/"))
-                    FileUtil.DeleteFileOrDirectory("Assets/Temp_Assets/");
-
-                AssetDatabase.Refresh();
-                #endif
-
+            SceneManager t_sceneManager = SceneManager.Instance;
+            if (t_sceneManager != null) 
                 Build();
+
+            t_sceneManager.Reload();
+        }
+
+        private IEnumerator Reset()
+        {
+            if (ID != TempID) 
+            {
+                Directory.CreateDirectory(TempID);
+
+                for (uint i = 0; i < Directory.GetDirectories(Application.persistentDataPath + "/" + ID).Length; i++)
+                {
+                    string t_name = Directory.GetDirectories(Application.persistentDataPath + "/" + ID)[i];
+                    Directory.CreateDirectory(t_name.Replace(ID, TempID));
+
+                    for (uint a = 0; a < Directory.GetFiles(t_name).Length; a++)
+                        File.Copy(Directory.GetFiles(t_name)[a], Directory.GetFiles(t_name)[a].Replace(ID, TempID), true);
+                }
+
+                yield return new WaitForSeconds(0.1f);
+
+                ID = TempID;
             }
         }
 
         [ContextMenu("Clear All Data.")]
         public void ClearAllData()
         {
-            var t_path = Application.persistentDataPath + "/";
-            var t_data = Directory.GetDirectories(t_path);
-            for (var i = 0; i < t_data.Length; i++)
+            string t_path = Application.persistentDataPath + "/"; 
+            string[] t_data = Directory.GetDirectories(t_path);
+            for (uint i = 0; i < t_data.Length; i++)
             {
-                if (t_data[i].Contains(_dataReferences.ID))
+                if (!t_data[i].Contains("Unity"))
                 {
-                    #if UNITY_EDITOR
-                    if (Directory.Exists(t_data[i]))
-                    {
-                        FileUtil.DeleteFileOrDirectory(t_data[i]);
-                        Debug.Log("Cleaning Data from: " + t_data[i]);
-                    }
-                    AssetDatabase.Refresh();
-                    #endif
+                    Directory.Delete(t_data[i], true);
+                    Debug.Log("Cleaning Data from: " + t_data[i]);
                 }
             }
         }
 
-        [ContextMenu("Clear PlayerPrefs.")]
-        public void ClearPlayerPrefs()
+        public void ClearData(string p_input)
         {
-            PlayerPrefs.DeleteAll();
+            string t_path = Application.persistentDataPath + "/";
+            string[] t_data = Directory.GetFiles(t_path + "Autosave/GameData/");
+   
+            for (uint i = 0; i < t_data.Length; i++)
+            {
+                if(t_data[i].Contains(p_input))
+                    File.Delete(t_data[i]);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            string t_temp = Application.persistentDataPath + "/" + TempID + "/";
+            if (Directory.Exists(t_temp))
+                Directory.Delete(t_temp, true);
         }
     }
 }
