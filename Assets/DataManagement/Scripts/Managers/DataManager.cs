@@ -76,7 +76,7 @@ namespace DataManagement
             if (t_dir.Name != "Unity") return t_dir.Name;
             else return null;
         }
-        
+
         // Add DataElement children down here too make sure they are correctly loaded in on loading a scene.
         public void Build()
         {
@@ -87,7 +87,6 @@ namespace DataManagement
             //Build data down here 
 
 		    DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
-
             StartCoroutine(Reset());
         }
 
@@ -150,9 +149,11 @@ namespace DataManagement
             SceneManager t_sceneManager = SceneManager.Instance;
             if (t_sceneManager != null)
             {
-                if (p_input != null && p_input != "")  {
+                if (p_input != null && p_input != "")
+                {
                     ID = p_input;
-                } else ID = SaveReferences.saveData[SaveReferences.overrideSave.value];
+                }
+                else ID = SaveReferences.saveData[SaveReferences.overrideSave.value];
 
                 SaveReferences.Init();
                 Debug.Log("Saving Data to: " + ID);
@@ -170,7 +171,7 @@ namespace DataManagement
             Debug.Log(ID + "DEBUGGING");
 
             SceneManager t_sceneManager = SceneManager.Instance;
-            if (t_sceneManager != null) 
+            if (t_sceneManager != null)
                 Build();
 
             t_sceneManager.Reload();
@@ -178,7 +179,7 @@ namespace DataManagement
 
         private IEnumerator Reset()
         {
-            if (ID != TempID) 
+            if (ID != TempID)
             {
                 Directory.CreateDirectory(TempID);
 
@@ -200,7 +201,7 @@ namespace DataManagement
         [ContextMenu("Clear All Data.")]
         public void ClearAllData()
         {
-            string t_path = Application.persistentDataPath + "/"; 
+            string t_path = Application.persistentDataPath + "/";
             string[] t_data = Directory.GetDirectories(t_path);
             for (uint i = 0; i < t_data.Length; i++)
             {
@@ -216,10 +217,10 @@ namespace DataManagement
         {
             string t_path = Application.persistentDataPath + "/";
             string[] t_data = Directory.GetFiles(t_path + "Autosave/GameData/");
-   
+
             for (uint i = 0; i < t_data.Length; i++)
             {
-                if(t_data[i].Contains(p_input))
+                if (t_data[i].Contains(p_input))
                     File.Delete(t_data[i]);
             }
         }

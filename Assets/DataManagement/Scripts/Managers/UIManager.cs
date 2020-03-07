@@ -31,26 +31,31 @@ public class UIManager : MonoBehaviour
         Instance = this;
 
         DontDestroyOnLoad(this);
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
-    public void SetTimeScale(int p_input)
+    private void MenuHandler()
     {
-        Time.timeScale = p_input;
-    }
-
-    private void OpenMenu()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene)
+        if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene && _menuOpened == false)
         {
-            _menuOpened = !_menuOpened;
+            _menuOpened = true;
             _menu.SetActive(_menuOpened);
-        }
-    }
+            Time.timeScale = 0;
 
-    public void CloseMenu()
-    {
-        _menu.SetActive(false);
-        _menuOpened = false;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene && _menuOpened == true)
+        {
+            _menuOpened = false;
+            _menu.SetActive(_menuOpened);
+            Time.timeScale = 1;
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
     public void OpenLoading(string p_input)
@@ -72,6 +77,6 @@ public class UIManager : MonoBehaviour
 
     public void Update()
     {
-        OpenMenu();
+        MenuHandler();
     }
 }

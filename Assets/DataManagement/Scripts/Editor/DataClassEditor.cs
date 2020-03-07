@@ -37,7 +37,7 @@ public class DataClassEditor : EditorWindow
         public class PropertyReferences
         {
             public string Name;
-            public enum Types { Int, String, Float, Sprite, Vector3}
+            public enum Types { Int, String, Float, Sprite, Vector3, List }
             public Types Type;
         }
     }
@@ -52,7 +52,7 @@ public class DataClassEditor : EditorWindow
     }
 
     private enum OutputType { Main, Data, Initialize }
-    private string PropertyHandler(OutputType p_input) 
+    private string PropertyHandler(OutputType p_input)
     {
         if (p_input == OutputType.Initialize)
         {
@@ -77,7 +77,7 @@ public class DataClassEditor : EditorWindow
             }
             return string.Join("", t_temp.ToArray());
         }
-        if (p_input == OutputType.Data) 
+        if (p_input == OutputType.Data)
         {
             List<string> t_temp = new List<string>();
             for (int i = 0; i < classReferences.Properties.Length; i++)
@@ -92,11 +92,12 @@ public class DataClassEditor : EditorWindow
         return null;
     }
 
-    private string TypeCheck(string p_input) 
+    private string TypeCheck(string p_input)
     {
         if (p_input.Contains("Int")) return p_input.ToLower();
         if (p_input.Contains("String")) return p_input.ToLower();
         if (p_input.Contains("Float")) return p_input.ToLower();
+        if (p_input.Contains("List")) return p_input + "<T>";
 
         return p_input;
     }
@@ -105,9 +106,11 @@ public class DataClassEditor : EditorWindow
     {
         _targetFolder = (DefaultAsset)EditorGUILayout.ObjectField("Folder", _targetFolder, typeof(DefaultAsset), false);
 
-        if (_targetFolder != null) {
+        if (_targetFolder != null)
+        {
             EditorGUILayout.HelpBox("Valid folder!", MessageType.Info, true);
-        } else EditorGUILayout.HelpBox("Not valid!", MessageType.Warning, true);
+        }
+        else EditorGUILayout.HelpBox("Not valid!", MessageType.Warning, true);
 
         _path = Application.dataPath.Replace("Assets", "") + AssetDatabase.GetAssetPath(_targetFolder);
 
@@ -115,7 +118,7 @@ public class DataClassEditor : EditorWindow
 
         ClassHandler();
 
-        if (GUILayout.Button(_addClass)) 
+        if (GUILayout.Button(_addClass))
         {
             CreateClass(classReferences.Name);
         }
@@ -149,6 +152,8 @@ public class DataClassEditor : EditorWindow
             {
                 string t_input = ("using UnityEngine;\n") +
                                 ("using DataManagement;\n") +
+                                ("using System.Linq;\n") +
+                                ("using UnityEditor.SceneManagement;\n") +
                                 ("\n") +
                                 ("public class " + p_input + " : MonoBehaviour {\n") +
                                 ("\n") +
@@ -157,14 +162,28 @@ public class DataClassEditor : EditorWindow
                                 ("\n") +
                                 ("\t// A reference too the data being saved in this class.\n\tprivate " + p_input + "Data" + " _data = null;\n") +
                                 ("\n") +
-                                ("\t// The ID under wich this data will be saved.\n\tprivate const string _id = " + '"' + classReferences.ID + '"' + ";\n") +
+                                ("\t// The ID under wich this data will be saved.\n\t[SerializeField] private string _id = " + '"' + classReferences.ID + '"' + ";\n") +
+                                ("\n") +
+                                ("\t[ContextMenu(" + '"' + "Generate ID" + '"' + ")]\n") +
+                                ("\tpublic void GenerateID()\n") +
+                                ("\t{\n") +
+                                ("\t\tEditorSceneManager.MarkSceneDirty(gameObject.scene);\n") +
+                                ("\n") +
+                                ("\t\t_id = " + '"' + '"' + ";\n") +
+                                ("\t\tSystem.Random t_random = new System.Random();\n") +
+                                ("\t\tconst string t_chars = " + '"' + "AaBbCcDdErFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789" + '"' +";\n") +
+                                ("\t\t_id = new string( Enumerable.Repeat(t_chars, 8).Select(s => s[t_random.Next(s.Length)]).ToArray());\n") +
+                                ("\t}\n") +
                                 ("\n") +
                                 ("\tprivate void Setup()\n") +
                                 ("\t{\n") +
                                 ("\t\t_dataReferences = SceneManager.Instance.DataReferences;\n") +
                                 ("\n") +
                                 ("\t\t_data = _dataReferences.FindElement<" + p_input + "Data" + ">(_id);\n") +
-                                ("\t\tif (_data == null) _data = _dataReferences.AddElement<" + p_input + "Data" + ">(_id);\n") +
+                                ("\t\tif (_data == null) {\n") +
+                                ("\t\t\t_data = _dataReferences.AddElement<" + p_input + "Data" + ">(_id);\n") +
+                                ("\t\t\treturn;\n") +
+                                ("\t\t}\n") +
                                 ("\n") +
                                 (PropertyHandler(OutputType.Initialize)) +
                                 ("\t}\n") +

@@ -42,7 +42,7 @@ namespace DataManagement
 
                     if (t_data[i] != DataManager.Instance.ID)
                         load.options.Add(new Dropdown.OptionData(t_data[i]));
-                    
+
                     else load.options.Add(new Dropdown.OptionData(DataManager.Instance.ID));
 
                     load.RefreshShownValue();
@@ -58,9 +58,9 @@ namespace DataManagement
                 {
                     if (t_data[i] != DataManager.Instance.ID)
                         overrideSave.options.Add(new Dropdown.OptionData(t_data[i]));
-                        
+
                     else overrideSave.options.Add(new Dropdown.OptionData(DataManager.Instance.ID));
-                    
+
                     overrideSave.RefreshShownValue();
                 }
             }

@@ -96,7 +96,8 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 97f3feeebefbbb84dbb8468fa7c56cee,
+    type: 2}
   m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
@@ -482,7 +483,7 @@ PrefabInstance:
     - target: {fileID: 583421372303062743, guid: 0930ca509ed3ef74e96f62891409ee1d,
         type: 3}
       propertyPath: _levelToLoad
-      value: ExampleScene
+      value: Main
       objectReference: {fileID: 0}
     - target: {fileID: 583421373328485999, guid: 0930ca509ed3ef74e96f62891409ee1d,
         type: 3}
@@ -1206,6 +1207,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7076045962539245799, guid: 6fa02c89bd3569645817f1fbd7d4e1f3,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: QuitApplication
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fa02c89bd3569645817f1fbd7d4e1f3, type: 3}

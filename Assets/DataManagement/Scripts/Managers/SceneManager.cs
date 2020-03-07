@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.IO;
+﻿using System.IO;
+using UnityEngine;
 
 
 
@@ -69,7 +69,7 @@ namespace DataManagement
             if (t_dataManager != null) t_dataManager.Build();
         }
 
-        public void LoadScene(string p_input) 
+        public void LoadScene(string p_input)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(p_input);
         }

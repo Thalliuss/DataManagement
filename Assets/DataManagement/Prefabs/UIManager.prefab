@@ -743,6 +743,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: -40
       objectReference: {fileID: 0}
+    - target: {fileID: 6570091269459532550, guid: c901631c14e8e7e4095f6719cfd05a61,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 4980066380764881392}
+    - target: {fileID: 6570091269459532550, guid: c901631c14e8e7e4095f6719cfd05a61,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: QuitApplication
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c901631c14e8e7e4095f6719cfd05a61, type: 3}
 --- !u!224 &7076045962539245798 stripped

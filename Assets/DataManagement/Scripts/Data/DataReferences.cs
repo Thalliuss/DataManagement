@@ -63,9 +63,12 @@ namespace DataManagement
         {
             if (DataManager.Instance == null) return;
 
-            if (p_ID != SaveData.ids[p_index]) {
+            if (p_ID != SaveData.ids[p_index])
+            {
                 throw new ArgumentException("Element does not exists.");
-            } else {
+            }
+            else
+            {
                 T t_info = (T)DataParser.CreateAsset<T>(p_ID);
                 t_info.ID = p_ID;
 
