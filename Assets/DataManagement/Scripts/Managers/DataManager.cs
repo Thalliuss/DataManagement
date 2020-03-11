@@ -35,6 +35,8 @@ namespace DataManagement
             DontDestroyOnLoad(this);
             ID = (CheckForLastFile() ?? TempID);
 
+            Reset();
+
             string t_path = Application.persistentDataPath + "/" + ID + "/";
             if (!Directory.Exists(t_path))
                 Directory.CreateDirectory(t_path);
@@ -69,8 +71,7 @@ namespace DataManagement
 
             //Build data down here 
 
-            DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
-            Reset();
+		    DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
         }
 
         public void Save()
@@ -137,6 +138,19 @@ namespace DataManagement
                     ID = p_input;
                 }
                 else ID = SaveReferences.saveData[SaveReferences.save.value];
+
+                string _path = Application.persistentDataPath + "/";
+
+                Directory.Delete(_path + ID, true);
+
+                for (uint i = 0; i < Directory.GetDirectories(_path + _tempID).Length; i++)
+                {
+                    string t_name = Directory.GetDirectories(_path + _tempID)[i];
+                    Directory.CreateDirectory(t_name.Replace(_tempID, ID));
+
+                    for (uint a = 0; a < Directory.GetFiles(t_name).Length; a++)
+                        File.Copy(Directory.GetFiles(t_name)[a], Directory.GetFiles(t_name)[a].Replace(_tempID, ID));
+                }
 
                 SaveReferences.Init();
                 Debug.Log("Saving Data to: " + ID);

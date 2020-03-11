@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _loadOnStart: 1
-  _levelToLoad: ExampleScene
+  _levelToLoad: 
 --- !u!1 &583421372733830919
 GameObject:
   m_ObjectHideFlags: 0
