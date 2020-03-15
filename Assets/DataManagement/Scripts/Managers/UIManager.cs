@@ -36,25 +36,16 @@ public class UIManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void MenuHandler()
+    private void UIHandler()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene && _menuOpened == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene)
         {
-            _menuOpened = true;
+            _menuOpened = !_menuOpened;
             _menu.SetActive(_menuOpened);
-            Time.timeScale = 0;
 
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape) && !LoadingscreenManager.Instance.IsLoading && !LoadingscreenManager.Instance.IsSetupScene && _menuOpened == true)
-        {
-            _menuOpened = false;
-            _menu.SetActive(_menuOpened);
-            Time.timeScale = 1;
-
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = _menuOpened;
+            if (!_menuOpened) Cursor.lockState = CursorLockMode.Locked;
+            else Cursor.lockState = CursorLockMode.None;
         }
     }
 
@@ -77,6 +68,6 @@ public class UIManager : MonoBehaviour
 
     public void Update()
     {
-        MenuHandler();
+        UIHandler();
     }
 }
