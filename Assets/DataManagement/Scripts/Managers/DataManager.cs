@@ -71,9 +71,7 @@ namespace DataManagement
 
             //Build data down here 
 
-            DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
-
-            Reset();
+		    DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
         }
 
         public void Save()

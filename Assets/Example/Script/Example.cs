@@ -37,7 +37,7 @@ public class Example : MonoBehaviour {
 
 	#endregion
 
-	[SerializeField] private InputField _input;
+	[SerializeField] private InputField _input = null;
 
 	void Start()
 	{
