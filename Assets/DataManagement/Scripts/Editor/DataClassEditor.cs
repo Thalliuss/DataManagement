@@ -52,7 +52,7 @@ namespace DataManagement
             t_object.ApplyModifiedProperties();
         }
 
-        private enum OutputType { Main, Data, Initialize }
+        private enum OutputType { Main, Data, Initialize, Values }
         private string PropertyHandler(OutputType p_input)
         {
             if (p_input == OutputType.Initialize)
@@ -71,8 +71,8 @@ namespace DataManagement
                 List<string> t_temp = new List<string>();
                 for (int i = 0; i < classReferences.Properties.Length; i++)
                 {
-                    string t_data = "\tpublic void Save" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t //TODO IMPLEMENT: Example, _data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = " + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t\t_data.Save();\n" + "\t}\n" +
-                                    "\tpublic void Load" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t //TODO IMPLEMENT: Example, " + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = _data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t}\n\n";
+                    string t_data = "\tpublic void Save" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t_data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = _" + char.ToLower(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t\t_data.Save();\n" + "\t}\n" +
+                                    "\tpublic void Load" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t_" + char.ToLower(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = _data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t}\n\n";
 
                     t_temp.Add(t_data);
                 }
@@ -85,6 +85,17 @@ namespace DataManagement
                 {
                     string t_data = "\tpublic " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " " + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " { get => _" + classReferences.Properties[i].Name.ToLower() + "; set => _" + classReferences.Properties[i].Name.ToLower() + " = value; }\n" +
                                     "\t[SerializeField] private " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " _" + classReferences.Properties[i].Name.ToLower() + ";\n";
+
+                    t_temp.Add(t_data);
+                }
+                return string.Join("", t_temp.ToArray()); ;
+            }
+            if (p_input == OutputType.Values)
+            {
+                List<string> t_temp = new List<string>();
+                for (int i = 0; i < classReferences.Properties.Length; i++)
+                {
+                    string t_data = "\t[SerializeField] private " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " _" + classReferences.Properties[i].Name.ToLower() + ";\n";
 
                     t_temp.Add(t_data);
                 }
@@ -198,10 +209,11 @@ namespace DataManagement
                                     ("\n") +
                                     (PropertyHandler(OutputType.Initialize)) +
                                     ("\t}\n") +
-                                    ("\n") +
                                     (PropertyHandler(OutputType.Main)) +
                                     ("\n") +
                                     ("\t#endregion\n") +
+                                    ("\n") +
+                                    (PropertyHandler(OutputType.Values)) +
                                     ("\n") +
                                     ("\tvoid Start()\n") +
                                     ("\t{\n") +

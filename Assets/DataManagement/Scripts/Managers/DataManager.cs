@@ -48,12 +48,12 @@ namespace DataManagement
 
             SaveReferences.Init();
 
-            Debug.Log(Application.persistentDataPath + "/");
+            Debug.Log($"{Application.persistentDataPath}/");
         }
 
         private string CheckForLastFile()
         {
-            string t_path = Application.persistentDataPath + "/";
+            string t_path = $"{Application.persistentDataPath}/";
 
             var t_root = new DirectoryInfo(t_path);
             var t_dir = t_root.GetDirectories().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
