@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -12,45 +11,14 @@ namespace DataManagement
     /// <author>Kevin Hummel</author>
     /// <date>18/03/2019 21:41 PM </date>
     /// <summary>
-    /// This class handles the easy creation of data classes trough the use of a custom EditorWindow.
+    /// This class handles the easy creation of data classes trough the use of a custom Editor.
     /// </summary>
-    public class DataClassEditor : EditorWindow
+    [CustomEditor(typeof(SaveData))]
+    public class SaveDataEditor : Editor
     {
         private string _path = "";
-        private string _addClass = "Create class";
 
-        private DefaultAsset _targetFolder = null;
-
-        [MenuItem("DataManagement/Create Data-classes")]
-        static void Init()
-        {
-            DataClassEditor window =
-                (DataClassEditor)GetWindow(typeof(DataClassEditor), true);
-        }
-
-        [Serializable]
-        public class ClassReferences
-        {
-            public string Name;
-            public PropertyReferences[] Properties;
-
-            [Serializable]
-            public class PropertyReferences
-            {
-                public string Name;
-                public enum Types { Int, String, Float, Sprite, Vector3, List }
-                public Types Type;
-            }
-        }
-        public ClassReferences classReferences;
-        private void ClassHandler()
-        {
-            SerializedObject t_object = new SerializedObject(this);
-            SerializedProperty t_property = t_object.FindProperty("classReferences");
-
-            EditorGUILayout.PropertyField(t_property, true);
-            t_object.ApplyModifiedProperties();
-        }
+        public SaveData classReferences;
 
         private enum OutputType { Main, Data, Initialize, Values }
         private string PropertyHandler(OutputType p_input)
@@ -58,9 +26,9 @@ namespace DataManagement
             if (p_input == OutputType.Initialize)
             {
                 List<string> t_temp = new List<string>();
-                for (int i = 0; i < classReferences.Properties.Length; i++)
+                for (int i = 0; i < classReferences.properties.Length; i++)
                 {
-                    string t_data = "\t\tLoad" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "();\n";
+                    string t_data = "\t\tLoad" + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + "();\n";
 
                     t_temp.Add(t_data);
                 }
@@ -69,10 +37,10 @@ namespace DataManagement
             if (p_input == OutputType.Main)
             {
                 List<string> t_temp = new List<string>();
-                for (int i = 0; i < classReferences.Properties.Length; i++)
+                for (int i = 0; i < classReferences.properties.Length; i++)
                 {
-                    string t_data = "\tpublic void Save" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t_data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = _" + char.ToLower(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t\t_data.Save();\n" + "\t}\n" +
-                                    "\tpublic void Load" + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + "()\n" + "\t{\n" + "\t\t_" + char.ToLower(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " = _data." + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + ";\n" + "\t}\n\n";
+                    string t_data = "\tpublic void Save" + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + "()\n" + "\t{\n" + "\t\t_data." + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + " = _" + char.ToLower(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + ";\n" + "\t\t_data.Save();\n" + "\t}\n" +
+                                    "\tpublic void Load" + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + "()\n" + "\t{\n" + "\t\t_" + char.ToLower(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + " = _data." + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + ";\n" + "\t}\n\n";
 
                     t_temp.Add(t_data);
                 }
@@ -81,10 +49,10 @@ namespace DataManagement
             if (p_input == OutputType.Data)
             {
                 List<string> t_temp = new List<string>();
-                for (int i = 0; i < classReferences.Properties.Length; i++)
+                for (int i = 0; i < classReferences.properties.Length; i++)
                 {
-                    string t_data = "\tpublic " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " " + char.ToUpper(classReferences.Properties[i].Name[0]) + classReferences.Properties[i].Name.Substring(1) + " { get => _" + classReferences.Properties[i].Name.ToLower() + "; set => _" + classReferences.Properties[i].Name.ToLower() + " = value; }\n" +
-                                    "\t[SerializeField] private " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " _" + classReferences.Properties[i].Name.ToLower() + ";\n";
+                    string t_data = "\tpublic " + TypeCheck(classReferences.properties[i].type.ToString()) + " " + char.ToUpper(classReferences.properties[i].name[0]) + classReferences.properties[i].name.Substring(1) + " { get => _" + classReferences.properties[i].name.ToLower() + "; set => _" + classReferences.properties[i].name.ToLower() + " = value; }\n" +
+                                    "\t[SerializeField] private " + TypeCheck(classReferences.properties[i].type.ToString()) + " _" + classReferences.properties[i].name.ToLower() + ";\n";
 
                     t_temp.Add(t_data);
                 }
@@ -93,9 +61,9 @@ namespace DataManagement
             if (p_input == OutputType.Values)
             {
                 List<string> t_temp = new List<string>();
-                for (int i = 0; i < classReferences.Properties.Length; i++)
+                for (int i = 0; i < classReferences.properties.Length; i++)
                 {
-                    string t_data = "\t[SerializeField] private " + TypeCheck(classReferences.Properties[i].Type.ToString()) + " _" + classReferences.Properties[i].Name.ToLower() + ";\n";
+                    string t_data = "\tprivate " + TypeCheck(classReferences.properties[i].type.ToString()) + " _" + classReferences.properties[i].name.ToLower() + ";\n";
 
                     t_temp.Add(t_data);
                 }
@@ -114,31 +82,11 @@ namespace DataManagement
             return p_input;
         }
 
-        void OnGUI()
+        public void CreateClass(string p_input)
         {
-            _targetFolder = (DefaultAsset)EditorGUILayout.ObjectField("Folder", _targetFolder, typeof(DefaultAsset), false);
+            _path = Application.dataPath.Replace("Assets", "") + AssetDatabase.GetAssetPath(classReferences).Replace(classReferences.name + ".asset", "");
 
-            if (_targetFolder != null)
-            {
-                EditorGUILayout.HelpBox("Valid folder!", MessageType.Info, true);
-            }
-            else EditorGUILayout.HelpBox("Not valid!", MessageType.Warning, true);
-
-            _path = Application.dataPath.Replace("Assets", "") + AssetDatabase.GetAssetPath(_targetFolder);
-
-            EditorGUILayout.Space();
-
-            ClassHandler();
-
-            if (GUILayout.Button(_addClass))
-            {
-                CreateClass(classReferences.Name);
-            }
-        }
-
-        private void CreateClass(string p_input)
-        {
-            if (p_input.Length > 0 && File.Exists(_path + "/" + p_input + ".cs") == false && _targetFolder != null)
+            if (p_input.Length > 0 && File.Exists(_path + "/" + p_input + ".cs") == false && classReferences != null)
             {
                 using (StreamWriter t_dataclass = new StreamWriter(_path + "/" + p_input + "Data.cs"))
                 {
@@ -240,6 +188,21 @@ namespace DataManagement
 
                 AssetDatabase.Refresh();
             }
+        }
+        public override void OnInspectorGUI()
+        {
+            GUILayout.Space(20f);
+
+            if (GUILayout.Button("Create: SaveData"))
+            {
+                classReferences = (SaveData)target;
+                CreateClass(classReferences.name);
+            }
+
+            GUILayout.Space(20f);
+
+
+            base.OnInspectorGUI();
         }
     }
 }
