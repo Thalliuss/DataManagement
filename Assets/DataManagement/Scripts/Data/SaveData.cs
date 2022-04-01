@@ -14,13 +14,15 @@ namespace DataManagement
     [Serializable, CreateAssetMenu()]
     public class SaveData : ScriptableObject
     {
+        [Header("Input what properties you want to save below.")]
         public Properties[] properties;
 
         [Serializable]
         public class Properties
         {
+            public bool continuousSave;
             public string name;
-            public enum Types { Int, String, Float, Sprite, Vector3, List }
+            public enum Types { Int, String, Float, Sprite, Vector3, List, Mesh , Quaternion}
             public Types type;
         }
     }

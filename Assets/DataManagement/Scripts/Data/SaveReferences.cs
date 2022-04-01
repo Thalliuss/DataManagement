@@ -31,6 +31,10 @@ namespace DataManagement
             if (load.options != null) load.options.Clear();
             if (save.options != null) save.options.Clear();
 
+            saveData.Add("");
+            load.options.Add(new Dropdown.OptionData());
+
+
             overrideButton.gameObject.SetActive(false);
 
             string t_path = Application.persistentDataPath + "/";
@@ -67,6 +71,7 @@ namespace DataManagement
                     else save.options.Add(new Dropdown.OptionData(DataManager.Instance.ID));
 
                     save.RefreshShownValue();
+
                     overrideButton.gameObject.SetActive(true);
                 }
             }

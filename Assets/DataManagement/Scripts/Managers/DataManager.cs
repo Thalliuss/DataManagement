@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -58,7 +59,7 @@ namespace DataManagement
             var t_root = new DirectoryInfo(t_path);
             var t_dir = t_root.GetDirectories().OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
 
-            if (t_dir.Name != "Unity") return t_dir.Name;
+            if (t_dir != null && t_dir.Name != "Unity") return t_dir.Name;
             else return null;
         }
 
@@ -69,9 +70,8 @@ namespace DataManagement
 
             DataBuilder.BuildDataReferences();
 
-            //Build data down here 
+            //Build data down here
 
-		    DataBuilder.BuildElementsOfType<ExampleData>(t_sceneManager.DataReferences.SaveData);
         }
 
         public void Save()
@@ -137,7 +137,7 @@ namespace DataManagement
                 {
                     ID = p_input;
                 }
-                else ID = SaveReferences.saveData[SaveReferences.save.value];
+                else ID = SaveReferences.saveData[SaveReferences.save.value + 1];
 
                 string _path = Application.persistentDataPath + "/";
 
@@ -171,6 +171,8 @@ namespace DataManagement
                 Build();
 
             t_sceneManager.Reload();
+
+            Reset();
         }
 
         private void Reset()
